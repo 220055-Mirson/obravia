@@ -105,73 +105,7 @@ function apenasEngenheiro(req, res, next) {
     next();
 }
 
-// ── PASSPORT GOOGLE OAUTH ──────────────────────────────────────
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await db.buscarUsuarioPorId(id);
-        done(null, user);
-    } catch(e) { done(e, null); }
-});
-
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    passport.use(new GoogleStrategy({
-        clientID:     process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL:  process.env.NODE_ENV === 'production'
-            ? 'https://obravia.onrender.com/auth/google/callback'
-            : 'http://localhost:3000/auth/google/callback'
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const email = profile.emails[0].value;
-            const nome  = profile.displayName;
-
-            // Verificar se já existe
-            let user = await db.buscarUsuarioPorEmail(email);
-
-            if (!user) {
-                // Criar cliente automaticamente
-                await db.cadastrarCliente({
-                    nome,
-                    email,
-                    senha: require('crypto').randomBytes(32).toString('hex') // senha aleatória
-                });
-                // Aprovar automaticamente
-                user = await db.buscarUsuarioPorEmail(email);
-                await db.aprovarUsuario(user.id);
-                user = await db.buscarUsuarioPorEmail(email);
-            }
-
-            if (user.status !== 'aprovado') {
-                return done(null, false, { message: 'Conta pendente de aprovação' });
-            }
-
-            const token = await db.criarSessao(user.id);
-            user.sessionToken = token;
-            return done(null, user);
-        } catch(e) { return done(e, null); }
-    }));
-}
-
-// ── ROTAS GOOGLE OAUTH ──
-app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login.html?erro=google' }),
-    async (req, res) => {
-        const user  = req.user;
-        const token = user.sessionToken;
-        // Redirecionar com token para o frontend guardar no localStorage
-        const tipo  = user.tipo || user.role;
-        const dest  = (tipo === 'admin') ? 'admin-novo-fluxo.html' : 'index.html';
-        res.redirect(`/${dest}?google_token=${token}&google_user=${encodeURIComponent(JSON.stringify({
-            id: user.id, nome: user.nome, email: user.email,
-            role: user.role, tipo: user.tipo, status: user.status
-        }))}`);
-    }
-);
+// Google OAuth implementado abaixo via fetch nativo (sem passport)
 
 // ════════════════════════════════════════════
 //  ROTAS GERAIS
