@@ -2,15 +2,40 @@
 //  OBRAVIA — server.js  (PostgreSQL + novo fluxo pedidos)
 // ============================================================
 
-const express = require('express');
-const multer  = require('multer');
-const path    = require('path');
-const cors    = require('cors');
-const fs      = require('fs');
-const db      = require('./db');
-const { type } = require('os');
+const express  = require('express');
+const multer   = require('multer');
+const path     = require('path');
+const cors     = require('cors');
+const fs       = require('fs');
+const db       = require('./db');
+const session  = require('express-session');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const app  = express();
+
+// ── RATE LIMITING (sem dependências externas) ──
+const _loginAttempts = new Map(); // IP -> { count, lastAttempt }
+
+function checkRateLimit(ip) {
+    const now    = Date.now();
+    const entry  = _loginAttempts.get(ip) || { count: 0, lastAttempt: 0 };
+    // Reset após 15 minutos
+    if (now - entry.lastAttempt > 15 * 60 * 1000) {
+        _loginAttempts.set(ip, { count: 1, lastAttempt: now });
+        return null;
+    }
+    if (entry.count >= 5) {
+        const wait = Math.ceil((15 * 60 * 1000 - (now - entry.lastAttempt)) / 1000 / 60);
+        return `Demasiadas tentativas. Tente novamente em ${wait} minuto(s).`;
+    }
+    _loginAttempts.set(ip, { count: entry.count + 1, lastAttempt: now });
+    return null;
+}
+
+function clearRateLimit(ip) {
+    _loginAttempts.delete(ip);
+}
 const PORT = process.env.PORT || 3000;
 
 // ── CORS ──────────────────────────────────────────────────────
@@ -20,7 +45,24 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// ── HTTPS REDIRECT ───────────────────────────────────────────
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === 'production' &&
+        req.headers['x-forwarded-proto'] !== 'https') {
+        return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    next();
+});
+
 // ── MIDDLEWARES ───────────────────────────────────────────────
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'obravia_secret_2026',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 30 * 24 * 60 * 60 * 1000 }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
@@ -71,6 +113,74 @@ function apenasEngenheiro(req, res, next) {
     }
     next();
 }
+
+// ── PASSPORT GOOGLE OAUTH ──────────────────────────────────────
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await db.buscarUsuarioPorId(id);
+        done(null, user);
+    } catch(e) { done(e, null); }
+});
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+        clientID:     process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL:  process.env.NODE_ENV === 'production'
+            ? 'https://obravia.onrender.com/auth/google/callback'
+            : 'http://localhost:3000/auth/google/callback'
+    }, async (accessToken, refreshToken, profile, done) => {
+        try {
+            const email = profile.emails[0].value;
+            const nome  = profile.displayName;
+
+            // Verificar se já existe
+            let user = await db.buscarUsuarioPorEmail(email);
+
+            if (!user) {
+                // Criar cliente automaticamente
+                await db.cadastrarCliente({
+                    nome,
+                    email,
+                    senha: require('crypto').randomBytes(32).toString('hex') // senha aleatória
+                });
+                // Aprovar automaticamente
+                user = await db.buscarUsuarioPorEmail(email);
+                await db.aprovarUsuario(user.id);
+                user = await db.buscarUsuarioPorEmail(email);
+            }
+
+            if (user.status !== 'aprovado') {
+                return done(null, false, { message: 'Conta pendente de aprovação' });
+            }
+
+            const token = await db.criarSessao(user.id);
+            user.sessionToken = token;
+            return done(null, user);
+        } catch(e) { return done(e, null); }
+    }));
+}
+
+// ── ROTAS GOOGLE OAUTH ──
+app.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login.html?erro=google' }),
+    async (req, res) => {
+        const user  = req.user;
+        const token = user.sessionToken;
+        // Redirecionar com token para o frontend guardar no localStorage
+        const tipo  = user.tipo || user.role;
+        const dest  = (tipo === 'admin') ? 'admin-novo-fluxo.html' : 'index.html';
+        res.redirect(`/${dest}?google_token=${token}&google_user=${encodeURIComponent(JSON.stringify({
+            id: user.id, nome: user.nome, email: user.email,
+            role: user.role, tipo: user.tipo, status: user.status
+        }))}`);
+    }
+);
 
 // ════════════════════════════════════════════
 //  ROTAS GERAIS
@@ -154,8 +264,8 @@ app.post('/api/cadastro/cliente', async (req, res) => {
         const { nome, email, senha } = req.body;
         if (!nome || !email || !senha)
             return erro(res, 400, 'Nome, email e senha são obrigatórios');
-        if (senha.length < 6)
-            return erro(res, 400, 'A senha deve ter pelo menos 6 caracteres');
+        const senhaErro = db.validarSenha(senha);
+        if (senhaErro) return erro(res, 400, senhaErro);
 
         // Verificar se email já existe
         const existe = await db.buscarUsuarioPorEmail(email);
@@ -179,9 +289,94 @@ app.post('/api/cadastro/cliente', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, senha } = req.body;
     if (!email || !senha) return erro(res, 400, 'Email e senha são obrigatórios');
+
+    // Rate limiting por IP
+    const ip       = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const bloqueio = checkRateLimit(ip);
+    if (bloqueio) return erro(res, 429, bloqueio);
+
     const result = await db.login(email, senha);
     if (!result.success) return erro(res, 401, result.error);
+
+    // Login bem sucedido — limpar tentativas
+    clearRateLimit(ip);
     res.json({ success: true, token: result.token, user: result.user });
+});
+
+// ════════════════════════════════════════════
+//  GOOGLE OAUTH
+// ════════════════════════════════════════════
+
+app.get('/auth/google', (req, res) => {
+    const params = new URLSearchParams({
+        client_id:     process.env.GOOGLE_CLIENT_ID,
+        redirect_uri:  process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`,
+        response_type: 'code',
+        scope:         'openid email profile',
+        access_type:   'offline',
+        prompt:        'select_account'
+    });
+    res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+app.get('/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+    if (!code) return res.redirect('/login.html?erro=google_cancelado');
+
+    try {
+        const redirectUri = process.env.GOOGLE_REDIRECT_URI ||
+            `${req.protocol}://${req.get('host')}/auth/google/callback`;
+
+        // Trocar code por token
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                code,
+                client_id:     process.env.GOOGLE_CLIENT_ID,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                redirect_uri:  redirectUri,
+                grant_type:    'authorization_code'
+            })
+        });
+        const tokenData = await tokenRes.json();
+        if (!tokenData.access_token) throw new Error('Token inválido');
+
+        // Obter perfil do utilizador
+        const profileRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { Authorization: `Bearer ${tokenData.access_token}` }
+        });
+        const profile = await profileRes.json();
+        if (!profile.email) throw new Error('Email não obtido');
+
+        // Verificar se utilizador já existe
+        let user = await db.buscarUsuarioPorEmail(profile.email);
+
+        if (!user) {
+            // Criar conta automaticamente para clientes Google
+            const id = await db.cadastrarCliente({
+                nome:  profile.name || profile.email.split('@')[0],
+                email: profile.email,
+                senha: require('crypto').randomBytes(32).toString('hex') // senha aleatória
+            });
+            user = await db.buscarUsuarioPorId(id);
+        }
+
+        if (user.status !== 'aprovado') {
+            return res.redirect('/login.html?erro=pendente');
+        }
+
+        // Criar sessão
+        const token = await db.criarSessao(user.id);
+
+        // Redirecionar com token via query param (temporário, guardado no localStorage pelo JS)
+        const destino = ['admin'].includes(user.role) ? '/admin-novo-fluxo.html' : '/index.html';
+        res.redirect(`/auth-callback.html?token=${token}&nome=${encodeURIComponent(user.nome)}&role=${user.role}&tipo=${user.tipo || ''}&id=${user.id}&destino=${destino}`);
+
+    } catch (e) {
+        console.error('Google OAuth erro:', e);
+        res.redirect('/login.html?erro=google_falhou');
+    }
 });
 
 app.post('/api/verificar-cadastro', async (req, res) => {

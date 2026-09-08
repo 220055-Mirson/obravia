@@ -156,7 +156,10 @@ async function inicializarBanco() {
     await run(`CREATE INDEX IF NOT EXISTS idx_propostas_pedido  ON propostas(pedido_id)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_propostas_eng     ON propostas(engenheiro_id)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_sessoes_token     ON sessoes(token)`);
+    // Migração: adicionar coluna expira_em se não existir
+    await run(`ALTER TABLE sessoes ADD COLUMN IF NOT EXISTS expira_em TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days')`);
 
+    await criarTabelasSeguranca();
     await criarTabelaTransacoes();
     await criarTabelaPedidosDirectos();
     await criarTabelaMensagens();
@@ -207,6 +210,13 @@ async function cadastrarJunior(dados) {
         [nome, email, senhaHash, diploma_path, especializacao, linkedin]
     );
     return res.rows[0].id;
+}
+
+function validarSenha(senha) {
+    if (!senha || senha.length < 8) return 'A senha deve ter pelo menos 8 caracteres';
+    if (!/[A-Z]/.test(senha) && !/[0-9]/.test(senha))
+        return 'A senha deve conter pelo menos um número ou letra maiúscula';
+    return null; // válida
 }
 
 async function cadastrarCliente(dados) {
@@ -263,9 +273,79 @@ async function rejeitarUsuario(id) {
 //  SESSÕES
 // ════════════════════════════════════════════
 
+// ════════════════════════════════════════════
+//  SEGURANÇA — tabelas e funções extra
+// ════════════════════════════════════════════
+
+async function criarTabelasSeguranca() {
+    // Adicionar coluna expira_em à tabela sessoes se não existir
+    await run(`
+        ALTER TABLE sessoes
+        ADD COLUMN IF NOT EXISTS expira_em TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days')
+    `);
+    // Tabela de tentativas de login falhadas (rate limiting)
+    await run(`
+        CREATE TABLE IF NOT EXISTS login_tentativas (
+            id         SERIAL PRIMARY KEY,
+            email      TEXT NOT NULL,
+            ip         TEXT,
+            tentativas INTEGER DEFAULT 1,
+            bloqueado_ate TIMESTAMPTZ,
+            ultima_tentativa TIMESTAMPTZ DEFAULT NOW()
+        )
+    `);
+    await run(`CREATE INDEX IF NOT EXISTS idx_tentativas_email ON login_tentativas(email)`);
+}
+
+async function verificarRateLimit(email, ip) {
+    const r = await getOne(
+        `SELECT * FROM login_tentativas WHERE email = $1`,
+        [email]
+    );
+    if (!r) return { bloqueado: false };
+    if (r.bloqueado_ate && new Date(r.bloqueado_ate) > new Date()) {
+        const mins = Math.ceil((new Date(r.bloqueado_ate) - new Date()) / 60000);
+        return { bloqueado: true, mins };
+    }
+    return { bloqueado: false, tentativas: r.tentativas };
+}
+
+async function registarTentativaFalhada(email, ip) {
+    const r = await getOne(`SELECT * FROM login_tentativas WHERE email = $1`, [email]);
+    if (!r) {
+        await run(`INSERT INTO login_tentativas (email, ip) VALUES ($1, $2)`, [email, ip]);
+    } else {
+        const novas = (r.tentativas || 0) + 1;
+        const bloquear = novas >= 5
+            ? `NOW() + INTERVAL '15 minutes'`
+            : 'NULL';
+        await run(
+            `UPDATE login_tentativas SET tentativas=$1, ip=$2, ultima_tentativa=NOW(), bloqueado_ate=${bloquear} WHERE email=$3`,
+            [novas, ip, email]
+        );
+    }
+}
+
+async function limparTentativas(email) {
+    await run(`DELETE FROM login_tentativas WHERE email = $1`, [email]);
+}
+
+async function limparSessoesExpiradas() {
+    await run(`DELETE FROM sessoes WHERE expira_em < NOW()`);
+}
+
 async function criarSessao(usuarioId) {
     const token = crypto.randomBytes(64).toString('hex');
-    await run('INSERT INTO sessoes (token, usuario_id) VALUES ($1, $2)', [token, usuarioId]);
+    // Sessão expira em 30 dias
+    await run(
+        "INSERT INTO sessoes (token, usuario_id, expira_em) VALUES ($1, $2, NOW() + INTERVAL '30 days')",
+        [token, usuarioId]
+    );
+    // Limpar sessões expiradas do mesmo utilizador
+    await run(
+        "DELETE FROM sessoes WHERE usuario_id = $1 AND expira_em < NOW()",
+        [usuarioId]
+    );
     return token;
 }
 
@@ -551,11 +631,12 @@ async function login(email, senha) {
 
 async function verificarToken(token) {
     const sessao = await getOne(
-        `SELECT s.token, s.usuario_id,
+        `SELECT s.token, s.usuario_id, s.expira_em,
                 u.id, u.nome, u.email, u.role, u.tipo, u.status
          FROM sessoes s
          JOIN usuarios u ON s.usuario_id = u.id
-         WHERE s.token = $1`,
+         WHERE s.token = $1
+           AND (s.expira_em IS NULL OR s.expira_em > NOW())`,
         [token]
     );
     if (!sessao) return null;
@@ -909,6 +990,9 @@ module.exports = {
     aceitarProposta,
     rejeitarProposta,
 
+    // Validação
+    validarSenha,
+
     // Autenticação
     login,
     verificarToken,
@@ -935,6 +1019,13 @@ module.exports = {
     marcarLidas,
     contarNaoLidas,
     propostasComChat,
+
+    // Segurança
+    verificarRateLimit,
+    registarTentativaFalhada,
+    limparTentativas,
+    limparSessoesExpiradas,
+    criarTabelasSeguranca,
 
     // Init
     inicializarBanco,

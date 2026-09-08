@@ -165,6 +165,30 @@
     .btn-entrar:active { transform: translateY(0); }
     .btn-entrar:disabled { background: #ccc; transform: none; cursor: not-allowed; }
 
+    /* Google button */
+    .btn-google {
+      width: 100%; padding: 13px;
+      background: white; color: #444441;
+      border: 1.5px solid #D3D1C7; border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-top: 0.8rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      text-decoration: none;
+    }
+    .btn-google:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #aaa; }
+    .btn-google img { width: 20px; height: 20px; }
+
+    .divider-ou {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin: 1rem 0 0;
+      font-size: 12px; color: #bbb;
+    }
+    .divider-ou::before, .divider-ou::after {
+      content: ''; flex: 1; height: 1px; background: #E5E5E5;
+    }
+
     /* Loading spinner */
     .spinner {
       width: 16px; height: 16px;
@@ -246,9 +270,31 @@
         <span id="btnTexto">Entrar →</span>
       </button>
 
+      <div class="divider-ou">ou</div>
+
+      <a class="btn-google" href="/auth/google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Entrar com Google
+      </a>
+
     </div>
 
     <!-- FOOTER -->
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:0.8rem;padding:0 2rem;margin-top:-0.5rem">
+      <div style="flex:1;height:1px;background:#eee"></div>
+      <span style="font-size:12px;color:#bbb">ou</span>
+      <div style="flex:1;height:1px;background:#eee"></div>
+    </div>
+
+    <!-- Google Login -->
+    <div style="padding:1rem 2rem">
+      <a href="/auth/google" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border:1.5px solid #D3D1C7;border-radius:9px;text-decoration:none;color:#444441;font-size:14px;font-weight:600;transition:all 0.15s;background:white" onmouseover="this.style.borderColor='#D85A30'" onmouseout="this.style.borderColor='#D3D1C7'">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Entrar com Google
+      </a>
+    </div>
+
     <div class="card-footer">
       <span>Não tem conta? <a href="welcome.html">Criar conta</a></span>
       <span style="color:#ddd;margin:0 6px">·</span>
@@ -262,6 +308,48 @@
 
   <script src="js/config.js"></script>
   <script>
+    // Capturar token do Google OAuth redirect
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const gToken = params.get('google_token');
+      const gUser  = params.get('google_user');
+      if (gToken && gUser) {
+        try {
+          const user = JSON.parse(decodeURIComponent(gUser));
+          localStorage.setItem('token',         gToken);
+          localStorage.setItem('authToken',     gToken);
+          localStorage.setItem('usuarioLogado', user.nome);
+          localStorage.setItem('role',          user.role);
+          localStorage.setItem('user',          JSON.stringify(user));
+          // Limpar URL e redirecionar
+          const tipo = user.tipo || user.role;
+          const dest = tipo === 'admin' ? 'admin-novo-fluxo.html' : 'index.html';
+          window.location.replace(dest);
+        } catch(e) { console.error('Erro Google auth:', e); }
+      }
+      // Mostrar erro se houve falha
+      const erro = params.get('erro');
+      if (erro === 'google') {
+        document.addEventListener('DOMContentLoaded', () => {
+          const el = document.getElementById('msgErro');
+          if (el) { el.textContent = 'Erro ao autenticar com Google. Tente novamente.'; el.classList.add('visivel'); }
+        });
+      }
+    })();
+  </script>
+  <script>
+
+    // Verificar erro vindo do OAuth
+    const _params = new URLSearchParams(window.location.search);
+    const _erro = _params.get('erro');
+    if (_erro) {
+      const _msgs = {
+        google_cancelado: 'Login com Google cancelado.',
+        google_falhou:    'Erro ao autenticar com Google. Tente novamente.',
+        pendente:         'A sua conta aguarda aprovação pelo administrador.'
+      };
+      mostrarErro(_msgs[_erro] || 'Erro de autenticação.');
+    }
 
     // Se já estiver autenticado, ir directo para index
     const tokenGuardado = localStorage.getItem('token') || localStorage.getItem('authToken');
