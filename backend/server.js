@@ -8,9 +8,7 @@ const path     = require('path');
 const cors     = require('cors');
 const fs       = require('fs');
 const db       = require('./db');
-const session  = require('express-session');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// OAuth implementado sem dependências externas (fetch nativo)
 
 const app  = express();
 
@@ -55,14 +53,7 @@ app.use((req, res, next) => {
 });
 
 // ── MIDDLEWARES ───────────────────────────────────────────────
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'obravia_secret_2026',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 30 * 24 * 60 * 60 * 1000 }
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+// Sessões geridas via tokens no PostgreSQL (sem express-session)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
