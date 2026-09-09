@@ -51,11 +51,12 @@
         return;
       }
 
-      const token  = params.get('token');
-      const nome   = params.get('nome');
-      const role   = params.get('role');
-      const tipo   = params.get('tipo');
-      const id     = params.get('id');
+      const token   = params.get('token');
+      const nome    = params.get('nome');
+      const email   = params.get('email') || '';
+      const role    = params.get('role');
+      const tipo    = params.get('tipo');
+      const id      = params.get('id');
       const destino = params.get('destino') || 'index.html';
 
       if (!token) {
@@ -64,20 +65,26 @@
       }
 
       // Guardar sessão
+      const nomeDecoded = decodeURIComponent(nome || '');
+      const userObj = {
+        id:     parseInt(id),
+        nome:   nomeDecoded,
+        email:  decodeURIComponent(email || ''),
+        role:   role || 'usuario',
+        tipo:   tipo || 'cliente',
+        status: 'aprovado'
+      };
+
       localStorage.setItem('token',         token);
       localStorage.setItem('authToken',     token);
-      localStorage.setItem('usuarioLogado', decodeURIComponent(nome || ''));
-      localStorage.setItem('role',          role || '');
-      localStorage.setItem('user', JSON.stringify({
-        id:    parseInt(id),
-        nome:  decodeURIComponent(nome || ''),
-        role:  role || 'usuario',
-        tipo:  tipo || 'cliente',
-        status: 'aprovado'
-      }));
+      localStorage.setItem('usuarioLogado', nomeDecoded);
+      localStorage.setItem('role',          role || 'usuario');
+      localStorage.setItem('user',          JSON.stringify(userObj));
 
-      // Redirecionar
-      window.location.href = decodeURIComponent(destino);
+      // Pequeno delay para garantir que o localStorage foi escrito
+      setTimeout(() => {
+        window.location.href = decodeURIComponent(destino);
+      }, 200);
     })();
   </script>
 </body>
