@@ -296,7 +296,7 @@ app.get('/auth/google/callback', async (req, res) => {
 
         // Redirecionar com token via query param (temporário, guardado no localStorage pelo JS)
         const destino = ['admin'].includes(user.role) ? '/admin-novo-fluxo.html' : '/index.html';
-        res.redirect(`/auth-callback.html?token=${token}&nome=${encodeURIComponent(user.nome)}&role=${user.role}&tipo=${user.tipo || ''}&id=${user.id}&destino=${destino}`);
+        res.redirect(`/auth-callback.html?token=${token}&nome=${encodeURIComponent(user.nome)}&email=${encodeURIComponent(user.email || '')}&role=${user.role}&tipo=${user.tipo || ''}&id=${user.id}&destino=${encodeURIComponent(destino)}`);
 
     } catch (e) {
         console.error('Google OAuth erro:', e);
