@@ -2,89 +2,69 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OBRAVIA — A autenticar...</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <title>A autenticar...</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: #444441;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 1.5rem;
-      color: white;
-    }
-    .spinner {
-      width: 48px; height: 48px;
-      border: 4px solid rgba(255,255,255,0.2);
-      border-top-color: #D85A30;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    h2 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; }
-    p  { font-size: 13px; color: rgba(255,255,255,0.55); }
+    body { background:#444441; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; font-family:sans-serif; flex-direction:column; gap:1rem; color:white; }
+    .spinner { width:40px; height:40px; border:4px solid rgba(255,255,255,0.2); border-top-color:#D85A30; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    p { font-size:14px; color:rgba(255,255,255,0.6); margin:0; }
   </style>
 </head>
 <body>
   <div class="spinner"></div>
-  <h2>A autenticar com Google...</h2>
-  <p>Aguarde um momento</p>
-
+  <p>A autenticar com Google...</p>
   <script>
-    (function() {
-      const params = new URLSearchParams(window.location.search);
-      const erro   = params.get('erro');
+    (function () {
+      try {
+        const p     = new URLSearchParams(window.location.search);
+        const erro  = p.get('erro');
 
-      if (erro) {
-        const msgs = {
-          google_cancelado: 'Login com Google cancelado.',
-          google_falhou:    'Erro ao autenticar com Google. Tente novamente.',
-          pendente:         'A sua conta ainda está a aguardar aprovação.'
-        };
-        alert(msgs[erro] || 'Erro de autenticação.');
-        window.location.href = 'login.html';
-        return;
+        if (erro) {
+          const msgs = {
+            google_cancelado: 'Login com Google cancelado.',
+            google_falhou:    'Erro ao autenticar com Google.',
+            pendente:         'A sua conta aguarda aprovação.'
+          };
+          alert(msgs[erro] || 'Erro de autenticação.');
+          window.location.replace('login.html');
+          return;
+        }
+
+        const token   = p.get('token');
+        const nome    = decodeURIComponent(p.get('nome') || '');
+        const email   = decodeURIComponent(p.get('email') || '');
+        const role    = p.get('role') || 'usuario';
+        const tipo    = p.get('tipo') || 'cliente';
+        const id      = parseInt(p.get('id') || '0');
+        const destino = decodeURIComponent(p.get('destino') || 'index.html');
+
+        if (!token) {
+          window.location.replace('login.html');
+          return;
+        }
+
+        const userObj = JSON.stringify({ id, nome, email, role, tipo, status: 'aprovado' });
+
+        // Escrever tudo no localStorage
+        localStorage.setItem('token',         token);
+        localStorage.setItem('authToken',     token);
+        localStorage.setItem('usuarioLogado', nomeDecoded);
+        localStorage.setItem('role',          role || 'usuario');
+        localStorage.setItem('user',          JSON.stringify(userObj));
+
+        // Confirmar que foi escrito antes de redirecionar
+        const check = localStorage.getItem('token');
+        if (check === token) {
+          // Redirecionar sem histórico (replace) para não voltar aqui
+          window.location.replace(destino.startsWith('/') ? destino : '/' + destino);
+        } else {
+          // Fallback: tentar novamente
+          setTimeout(() => window.location.replace(destino), 300);
+        }
+      } catch (e) {
+        console.error('Auth callback erro:', e);
+        window.location.replace('login.html');
       }
-
-      const token   = params.get('token');
-      const nome    = params.get('nome');
-      const email   = params.get('email') || '';
-      const role    = params.get('role');
-      const tipo    = params.get('tipo');
-      const id      = params.get('id');
-      const destino = params.get('destino') || 'index.html';
-
-      if (!token) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      // Guardar sessão
-      const nomeDecoded = decodeURIComponent(nome || '');
-      const userObj = {
-        id:     parseInt(id),
-        nome:   nomeDecoded,
-        email:  decodeURIComponent(email || ''),
-        role:   role || 'usuario',
-        tipo:   tipo || 'cliente',
-        status: 'aprovado'
-      };
-
-      localStorage.setItem('token',         token);
-      localStorage.setItem('authToken',     token);
-      localStorage.setItem('usuarioLogado', nomeDecoded);
-      localStorage.setItem('role',          role || 'usuario');
-      localStorage.setItem('user',          JSON.stringify(userObj));
-
-      // Pequeno delay para garantir que o localStorage foi escrito
-      setTimeout(() => {
-        window.location.href = decodeURIComponent(destino);
-      }, 200);
     })();
   </script>
 </body>
