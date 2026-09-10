@@ -271,9 +271,26 @@ function tempoRelativo(iso) {
 
 // ── AUTH E WELCOME ──
 function atualizarWelcome() {
-  const nome    = localStorage.getItem('usuarioLogado');
   const bemVindo = document.getElementById('bemVindo');
-  if (bemVindo) bemVindo.innerText = nome ? `Bem-vindo, ${nome}` : 'Bem-vindo, Visitante';
+  
+  // Tentar obter o nome de várias fontes possíveis para evitar falhas
+  let nome = localStorage.getItem('usuarioLogado');
+  
+  if (!nome) {
+    try {
+      const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+      if (userObj && userObj.nome) {
+        nome = userObj.nome;
+      }
+    } catch(e) {
+      console.error('Erro ao ler dados do utilizador:', e);
+    }
+  }
+
+  if (bemVindo) {
+    bemVindo.innerText = nome ? `Bem-vindo, ${nome}` : 'Bem-vindo, Visitante';
+  }
+  
   atualizarNavbar();
 }
 
