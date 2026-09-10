@@ -14,58 +14,56 @@
   <div class="spinner"></div>
   <p>A autenticar com Google...</p>
   <script>
-    (function () {
-      try {
-        const p     = new URLSearchParams(window.location.search);
-        const erro  = p.get('erro');
+  (function () {
+    try {
+      const p     = new URLSearchParams(window.location.search);
+      const erro  = p.get('erro');
 
-        if (erro) {
-          const msgs = {
-            google_cancelado: 'Login com Google cancelado.',
-            google_falhou:    'Erro ao autenticar com Google.',
-            pendente:         'A sua conta aguarda aprovação.'
-          };
-          alert(msgs[erro] || 'Erro de autenticação.');
-          window.location.replace('login.html');
-          return;
-        }
-
-        const token   = p.get('token');
-        const nome    = decodeURIComponent(p.get('nome') || '');
-        const email   = decodeURIComponent(p.get('email') || '');
-        const role    = p.get('role') || 'usuario';
-        const tipo    = p.get('tipo') || 'cliente';
-        const id      = parseInt(p.get('id') || '0');
-        const destino = decodeURIComponent(p.get('destino') || 'index.html');
-
-        if (!token) {
-          window.location.replace('login.html');
-          return;
-        }
-
-        const userObj = JSON.stringify({ id, nome, email, role, tipo, status: 'aprovado' });
-
-        // Escrever tudo no localStorage
-        localStorage.setItem('token',         token);
-        localStorage.setItem('authToken',     token);
-        localStorage.setItem('usuarioLogado', nomeDecoded);
-        localStorage.setItem('role',          role || 'usuario');
-        localStorage.setItem('user',          JSON.stringify(userObj));
-
-        // Confirmar que foi escrito antes de redirecionar
-        const check = localStorage.getItem('token');
-        if (check === token) {
-          // Redirecionar sem histórico (replace) para não voltar aqui
-          window.location.replace(destino.startsWith('/') ? destino : '/' + destino);
-        } else {
-          // Fallback: tentar novamente
-          setTimeout(() => window.location.replace(destino), 300);
-        }
-      } catch (e) {
-        console.error('Auth callback erro:', e);
+      if (erro) {
+        const msgs = {
+          google_cancelado: 'Login com Google cancelado.',
+          google_falhou:    'Erro ao autenticar com Google.',
+          pendente:         'A sua conta aguarda aprovação.'
+        };
+        alert(msgs[erro] || 'Erro de autenticação.');
         window.location.replace('login.html');
+        return;
       }
-    })();
-  </script>
+
+      const token   = p.get('token');
+      const nome    = decodeURIComponent(p.get('nome') || '');
+      const email   = decodeURIComponent(p.get('email') || '');
+      const role    = p.get('role') || 'usuario';
+      const tipo    = p.get('tipo') || 'cliente';
+      const id      = parseInt(p.get('id') || '0');
+      const destino = decodeURIComponent(p.get('destino') || 'index.html');
+
+      if (!token) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      const userObj = { id, nome, email, role, tipo, status: 'aprovado' };
+
+      // Escrever tudo corretamente no localStorage usando a variável 'nome'
+      localStorage.setItem('token',         token);
+      localStorage.setItem('authToken',     token);
+      localStorage.setItem('usuarioLogado', nome);
+      localStorage.setItem('role',          role || 'usuario');
+      localStorage.setItem('user',          JSON.stringify(userObj));
+
+      // Confirmar que foi escrito antes de redirecionar
+      const check = localStorage.getItem('token');
+      if (check === token) {
+        window.location.replace(destino.startsWith('/') ? destino : '/' + destino);
+      } else {
+        setTimeout(() => window.location.replace(destino), 300);
+      }
+    } catch (e) {
+      console.error('Auth callback erro:', e);
+      window.location.replace('login.html');
+    }
+  })();
+</script>
 </body>
 </html>
