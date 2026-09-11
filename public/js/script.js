@@ -271,26 +271,15 @@ function tempoRelativo(iso) {
 
 // ── AUTH E WELCOME ──
 function atualizarWelcome() {
+  // Ler nome de várias fontes — garante compatibilidade com Google OAuth
+  const user    = JSON.parse(localStorage.getItem('user') || '{}');
+  const nome    = localStorage.getItem('usuarioLogado') || user.nome || '';
+  // Sincronizar para garantir consistência
+  if (user.nome && !localStorage.getItem('usuarioLogado')) {
+    localStorage.setItem('usuarioLogado', user.nome);
+  }
   const bemVindo = document.getElementById('bemVindo');
-  
-  // Tentar obter o nome de várias fontes possíveis para evitar falhas
-  let nome = localStorage.getItem('usuarioLogado');
-  
-  if (!nome) {
-    try {
-      const userObj = JSON.parse(localStorage.getItem('user') || '{}');
-      if (userObj && userObj.nome) {
-        nome = userObj.nome;
-      }
-    } catch(e) {
-      console.error('Erro ao ler dados do utilizador:', e);
-    }
-  }
-
-  if (bemVindo) {
-    bemVindo.innerText = nome ? `Bem-vindo, ${nome}` : 'Bem-vindo, Visitante';
-  }
-  
+  if (bemVindo) bemVindo.innerText = nome ? `Bem-vindo, ${nome}` : 'Bem-vindo, Visitante';
   atualizarNavbar();
 }
 
@@ -302,8 +291,8 @@ function atualizarNavbar() {
   const tipo = user.tipo || user.role || '';
   const tiposEng = ['senior', 'junior', 'empresa'];
   const isEng    = tiposEng.includes(tipo);
-  const isAdmin  = tipo === 'admin' || user.email === 'admin@obravia.com';
-  const logado   = !!user.id;
+  const isAdmin  = tipo === 'admin' || user.role === 'admin' || user.email === 'adminobravia@gmail.com';
+  const logado   = !!(user.id || localStorage.getItem('token') || localStorage.getItem('authToken'));
 
   // Limpar itens dinâmicos (manter Sobre e Sair que estão no HTML)
   navLinks.querySelectorAll('.item-dinamico').forEach(el => el.remove());
