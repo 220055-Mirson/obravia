@@ -775,5 +775,3 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📁  Uploads: ${uploadDir}`);
     console.log(`🌍  Ambiente: ${process.env.NODE_ENV || 'desenvolvimento'}`);
 });
-
-
