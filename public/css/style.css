@@ -326,6 +326,8 @@ body {
   transition: box-shadow 0.2s, transform 0.2s;
   display: flex;
   flex-direction: column;
+  height: 360px; /* fixed card height to keep uniform layout */
+  max-height: 360px;
 }
 .card:hover {
   box-shadow: 0 6px 24px rgba(0,0,0,0.09);
@@ -333,7 +335,7 @@ body {
 }
 .card-img {
   width: 100%;
-  height: 180px;
+  height: 160px;
   object-fit: cover;
   background: var(--cinza-claro);
   display: block;
@@ -342,7 +344,8 @@ body {
   padding: 1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0; /* enable proper overflow handling inside flex */
 }
 .card-engenheiro {
   display: flex;
@@ -387,13 +390,22 @@ body {
   color: #2C2C2A;
   margin-bottom: 5px;
   cursor: pointer;
+  display: -webkit-box; /* clamp title to two lines */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .card h3:hover { color: var(--laranja); }
 .card p {
   font-size: 13px;
   color: #5F5E5A;
   line-height: 1.5;
-  flex: 1;
+  margin: 6px 0 0;
+  /* Clamp description to max 3 lines and hide overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 .tag {
@@ -405,7 +417,7 @@ body {
   border: 1px solid var(--cinza-suave);
 }
 .card-acoes {
-  margin-top: 14px;
+  margin-top: auto; /* push actions to the bottom */
   padding-top: 12px;
   border-top: 1px solid var(--cinza-claro);
   display: flex;
