@@ -156,6 +156,8 @@ function aplicarFiltro() {
     projetosFiltrados = projetosFiltrados.filter(p => p.local && p.local.includes(_provinciaProjectos));
   }
   exibirProjetos();
+  // Atualizar também a seção de obras em andamento
+  exibirObras();
 }
 
 // ── EXIBIR PROJETOS NA GRID ──
@@ -259,16 +261,81 @@ async function carregarPedidos() {
     pedidosGrid.innerHTML = '<p style="color:#aaa;font-size:13px;padding:1rem">Não foi possível carregar os pedidos.</p>';
   }
 }
+    // initCarousel will wire buttons for any .carousel on the page
     initCarousel();
 
   function initCarousel() {
-    const prev = document.querySelector('.carousel-prev');
-    const next = document.querySelector('.carousel-next');
-    const carousel = document.querySelector('.carousel');
-    if (!carousel) return;
-    const step = 280 + 16; // card width + gap
-    prev && prev.addEventListener('click', () => { carousel.scrollBy({ left: -step, behavior: 'smooth' }); });
-    next && next.addEventListener('click', () => { carousel.scrollBy({ left: step, behavior: 'smooth' }); });
+    const step = 280 + 16; // fallback card width + gap
+    document.querySelectorAll('.carousel').forEach(carousel => {
+      const wrapper = carousel.closest('.carousel-wrapper');
+      if (!wrapper) return;
+      const prev = wrapper.querySelector('.carousel-prev');
+      const next = wrapper.querySelector('.carousel-next');
+      // remove previous handlers to avoid duplicates
+      if (prev) prev.replaceWith(prev.cloneNode(true));
+      if (next) next.replaceWith(next.cloneNode(true));
+      const prevNew = wrapper.querySelector('.carousel-prev');
+      const nextNew = wrapper.querySelector('.carousel-next');
+      prevNew && prevNew.addEventListener('click', () => { carousel.scrollBy({ left: -step, behavior: 'smooth' }); });
+      nextNew && nextNew.addEventListener('click', () => { carousel.scrollBy({ left: step, behavior: 'smooth' }); });
+    });
+  }
+
+  // Helper: render a project card (same HTML as exibirProjetos)
+  function renderCardHTML(projeto) {
+    const iniciais = (projeto.engenheiro_nome || projeto.engenheiro || 'Eng').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const local = projeto.local || 'Moçambique';
+    let tags = [];
+    if (projeto.tags) {
+      if (Array.isArray(projeto.tags)) tags = projeto.tags;
+      else if (typeof projeto.tags === 'string') tags = projeto.tags.split(',').map(t => t.trim());
+    }
+    const img = projeto.foto_capa || (projeto.fotos && projeto.fotos[0]) || 'https://placehold.co/600x400/D4B896/FFFFFF?text=Sem+Imagem';
+    return `
+      <div class="card">
+        <img class="card-img" src="${img}" alt="${escapeHtml(projeto.titulo)}">
+        <div class="card-body">
+          <div class="card-engenheiro">
+            <div class="avatar">${iniciais}</div>
+            <div>
+              <div class="card-nome">${escapeHtml(projeto.engenheiro_nome || projeto.engenheiro || 'Engenheiro')}</div>
+              <div class="card-local"><span class="dot-local"></span>${escapeHtml(local)}</div>
+            </div>
+          </div>
+          <h3 onclick="verDetalhes(${projeto.id})">${escapeHtml(projeto.titulo)}</h3>
+          <p>${escapeHtml((projeto.descricao||'').substring(0, 100))}${(projeto.descricao||'').length > 100 ? '...' : ''}</p>
+          <div class="card-tags">
+            ${tags.slice(0, 3).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+          </div>
+          <div class="card-acoes">
+            <button class="btn-contacto" onclick="abrirModalContacto('${escapeHtml(projeto.engenheiro_nome || projeto.engenheiro || 'Engenheiro')}', ${projeto.usuario_id || 0}, ${projeto.id})">Pedir contacto</button>
+            <button class="btn-ver" onclick="verDetalhes(${projeto.id})">Ver</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Exibir "Obras em andamento" — procura status que indiquem andamento
+  function exibirObras() {
+    const grid = document.getElementById('obrasGrid');
+    if (!grid) return;
+    const obras = (todosProjetos || []).filter(p => {
+      const s = (p.status || p.estado || p.andamento || '').toString().toLowerCase();
+      return s.includes('andament') || s.includes('em andamento') || (p.obras_em_andamento === true);
+    });
+    if (!obras.length) {
+      grid.innerHTML = `
+        <div class="empty-projetos">
+          <h3>📭 Nenhuma obra em andamento</h3>
+          <p>Não há obras marcadas como em andamento no momento.</p>
+        </div>
+      `;
+      initCarousel();
+      return;
+    }
+    grid.innerHTML = obras.map(renderCardHTML).join('');
+    initCarousel();
   }
 
 function tempoRelativo(iso) {
