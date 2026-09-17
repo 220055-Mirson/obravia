@@ -226,7 +226,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #2C2C2A;
+  color:#0E355A;
   margin-right: auto;
 }
 .filtro-btn {
@@ -273,6 +273,7 @@ body {
 .carousel::-webkit-scrollbar { height: 10px; }
 .carousel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
 .carousel .card { min-width: 260px; flex: 0 0 auto; }
+.carousel .card { width: 260px; max-width: 260px; }
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -815,6 +816,15 @@ footer {
     padding: 0 1rem;
     gap: 1rem;
     margin-bottom: 2rem;
+  }
+
+  /* Fix card width in mobile grid to keep uniform size */
+  .grid-cards .card,
+  .carousel .card {
+    width: 260px;
+    max-width: 260px;
+    min-width: 260px;
+    margin-right: 0.5rem;
   }
 
   /* ── Pedidos ── */
