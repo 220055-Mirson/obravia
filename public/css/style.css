@@ -263,6 +263,15 @@ body {
   position: relative;
   padding: 0 2rem;
 }
+
+.carousel-btn carousel-prev {
+  color: #0E355A;
+}
+
+.carousel-btn carousel-next {
+  color: #0E355A;
+}
+
 .carousel {
   display: flex;
   gap: 1rem;
