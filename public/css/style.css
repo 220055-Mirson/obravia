@@ -256,6 +256,47 @@ body {
   padding: 0 2rem;
 }
 
+/* Carousel wrapper for horizontal scrolling on mobile */
+.carousel-wrapper {
+  max-width: 1200px;
+  margin: 1.5rem auto 2rem;
+  position: relative;
+  padding: 0 2rem;
+}
+.carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 8px;
+}
+.carousel::-webkit-scrollbar { height: 10px; }
+.carousel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
+.carousel .card { min-width: 260px; flex: 0 0 auto; }
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.carousel-prev { left: 8px; }
+.carousel-next { right: 8px; }
+
+@media (min-width: 769px) {
+  .carousel-btn { display: none; }
+  .carousel { overflow: visible; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+
 /* Loading */
 .loading-projetos {
   text-align: center;

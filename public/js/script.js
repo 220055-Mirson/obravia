@@ -259,6 +259,17 @@ async function carregarPedidos() {
     pedidosGrid.innerHTML = '<p style="color:#aaa;font-size:13px;padding:1rem">Não foi possível carregar os pedidos.</p>';
   }
 }
+    initCarousel();
+
+  function initCarousel() {
+    const prev = document.querySelector('.carousel-prev');
+    const next = document.querySelector('.carousel-next');
+    const carousel = document.querySelector('.carousel');
+    if (!carousel) return;
+    const step = 280 + 16; // card width + gap
+    prev && prev.addEventListener('click', () => { carousel.scrollBy({ left: -step, behavior: 'smooth' }); });
+    next && next.addEventListener('click', () => { carousel.scrollBy({ left: step, behavior: 'smooth' }); });
+  }
 
 function tempoRelativo(iso) {
   if (!iso) return '–';
