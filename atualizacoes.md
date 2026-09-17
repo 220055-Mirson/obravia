@@ -1,1 +1,0 @@
-Perfeito, agora quero resolver essa primeira opcao de autenticacao dentro da plataforma, para que se o utiolizador quiser se registrar diretamente na plataforma, caso nao queira usar o google... Mas por seguranca assim que o usuario se cadastrar a obravia deve lhe confirmar se o email pertence mesmo ao usuario, como sugere fazer essa verificacao?
