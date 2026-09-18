@@ -256,7 +256,7 @@ body {
   padding: 0 2rem;
 }
 
-/* Carousel wrapper for horizontal scrolling on mobile */
+/* Carousel wrapper for horizontal scrolling on mobile and desktop */
 .carousel-wrapper {
   max-width: 1200px;
   margin: 1.5rem auto 2rem;
@@ -264,11 +264,11 @@ body {
   padding: 0 2rem;
 }
 
-.carousel-btn carousel-prev {
+.carousel-btn.carousel-prev {
   color: #0E355A;
 }
 
-.carousel-btn carousel-next {
+.carousel-btn.carousel-next {
   color: #0E355A;
 }
 
@@ -278,11 +278,17 @@ body {
   overflow-x: auto;
   scroll-behavior: smooth;
   padding-bottom: 8px;
+  scroll-snap-type: x proximity;
 }
 .carousel::-webkit-scrollbar { height: 10px; }
 .carousel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
-.carousel .card { min-width: 260px; flex: 0 0 auto; }
-.carousel .card { width: 260px; max-width: 260px; }
+.carousel .card {
+  min-width: 280px;
+  width: 280px;
+  max-width: 280px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
 .carousel-btn {
   position: absolute;
   top: 50%;
@@ -298,14 +304,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 .carousel-prev { left: 8px; }
 .carousel-next { right: 8px; }
-
-@media (min-width: 769px) {
-  .carousel-btn { display: none; }
-  .carousel { overflow: visible; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-}
 
 /* Loading */
 .loading-projetos {
@@ -827,7 +829,7 @@ footer {
     margin-bottom: 2rem;
   }
 
-  /* Fix card width in mobile grid to keep uniform size */
+  /* Ajuste só no mobile: manter o tamanho menor dos cards */
   .grid-cards .card,
   .carousel .card {
     width: 260px;
