@@ -74,7 +74,7 @@
       background: rgba(255,255,255,0.07);
     }
     .card-top::after {
-      content: '🔑';
+      content: '';
       position: absolute; right: 1.5rem; bottom: 1rem;
       font-size: 2.8rem; opacity: 0.15;
     }
@@ -346,7 +346,7 @@
     function toggleSenha() {
       const input = document.getElementById('senha');
       const btn   = document.querySelector('.toggle-senha');
-      if (input.type === 'password') { input.type = 'text';     btn.textContent = '🙈'; }
+      if (input.type === 'password') { input.type = 'text';     btn.textContent = ''; }
       else                           { input.type = 'password'; btn.textContent = '👁'; }
     }
 
@@ -402,7 +402,7 @@
           const msg = data.error || 'Email ou senha incorrectos.';
           // Mensagem amigável para eng. pendente
           if (msg.includes('aprovação')) {
-            mostrarErro('⏳ A sua conta de engenheiro ainda está a aguardar aprovação pelo administrador da OBRAVIA. Receberá acesso em breve.');
+            mostrarErro(' A sua conta de engenheiro ainda está a aguardar aprovação pelo administrador da OBRAVIA. Receberá acesso em breve.');
           } else {
             mostrarErro(msg);
           }
@@ -417,7 +417,7 @@
         localStorage.setItem('role',         data.user.role);
         localStorage.setItem('user',         JSON.stringify(data.user));
 
-        mostrarToast(`✅ Bem-vindo, ${data.user.nome}!`);
+        mostrarToast(` Bem-vindo, ${data.user.nome}!`);
 
         // Redirecionar conforme tipo
         const tipo = data.user.tipo || data.user.role;

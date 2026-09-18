@@ -1,15 +1,10 @@
-// ── CONFIGURAÇÃO DA API ──
-// REMOVA esta linha fixa:
-// const API_URL = 'http://localhost:3000/api';
-// Agora usa a variável global API_URL do config.js
-
-// ── VARIÁVEIS GLOBAIS ──
+// CONFIGURAÇÃO DA API
+// VARIÁVEIS GLOBAIS
 let todosProjetos = [];
 let projetosFiltrados = [];
 let categoriaAtual = 'todos';
 
-// ── CARREGAR PROJETOS DO BACKEND ──
-// ── FILTROS DE PROVÍNCIA ──
+// FILTROS DE PROVÍNCIA
 let _todosProjectos = [];
 let _todosPedidos   = [];
 let _categoriaActiva = 'todos';
@@ -44,7 +39,6 @@ function renderProjectosFiltrados() {
     return;
   }
 
-  // Re-render using existing card logic
   grid.innerHTML = dados.map(projeto => {
     const engNome = projeto.engenheiro_nome || projeto.engenheiro || 'Engenheiro';
     const fotos   = Array.isArray(projeto.fotos) ? projeto.fotos : (typeof projeto.fotos === 'string' ? JSON.parse(projeto.fotos || '[]') : []);
@@ -53,13 +47,13 @@ function renderProjectosFiltrados() {
     const imgSrc = fotoCapa ? (fotoCapa.startsWith('http') ? fotoCapa : `${uploadsUrl}/${fotoCapa.replace(/^\//, '')}`) : '';
     return `<div class="card" onclick="window.location.href='detalhes.html?id=${projeto.id}'">
       <div class="card-img" style="background:#F1EFE8;min-height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(projeto.titulo)}" style="width:100%;height:160px;object-fit:cover" onerror="this.style.display='none'">` : '<span style="font-size:2rem">🏗️</span>'}
+        ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(projeto.titulo)}" style="width:100%;height:160px;object-fit:cover" onerror="this.style.display='none'">` : '<span style="font-size:2rem"></span>'}
       </div>
       <div class="card-content">
         <span class="tag">${escapeHtml(projeto.categoria || 'Geral')}</span>
         <h3>${escapeHtml(projeto.titulo)}</h3>
-        <p class="card-eng">👷 ${escapeHtml(engNome)}</p>
-        <p class="card-local">📍 ${escapeHtml(projeto.local || '')}</p>
+        <p class="card-eng"> ${escapeHtml(engNome)}</p>
+        <p class="card-local"> ${escapeHtml(projeto.local || '')}</p>
         <button class="btn-contacto" onclick="event.stopPropagation(); abrirModalContacto('${escapeHtml(engNome)}', ${projeto.usuario_id || 0}, ${projeto.id})">Pedir contacto</button>
       </div>
     </div>`;
@@ -119,7 +113,7 @@ async function carregarProjetos() {
     if (grid) {
       grid.innerHTML = `
         <div class="empty-projetos">
-          <h3>⚠️ Erro ao carregar projetos</h3>
+          <h3> Erro ao carregar projetos</h3>
           <p>Não foi possível conectar ao servidor. Verifique se o backend está rodando.</p>
           <button onclick="location.reload()" style="margin-top: 1rem; padding: 8px 16px; background: var(--laranja); color: white; border: none; border-radius: 8px; cursor: pointer;">Tentar novamente</button>
         </div>
@@ -128,7 +122,7 @@ async function carregarProjetos() {
   }
 }
 
-// ── APLICAR FILTRO ──
+// APLICAR FILTRO
 function filtrarProjetos(categoria, provincia) {
   if (categoria !== null && categoria !== undefined) _categoriaActiva = categoria;
   if (provincia  !== null && provincia  !== undefined) _provinciaProjectos = provincia;
@@ -141,7 +135,7 @@ function filtrarProjetos(categoria, provincia) {
       btn.classList.add('ativo');
     }
   });
-  
+
   aplicarFiltro();
 }
 
@@ -169,7 +163,7 @@ function exibirProjetos() {
   if (projetosFiltrados.length === 0) {
     grid.innerHTML = `
       <div class="empty-projetos">
-        <h3>📭 Nenhum projeto encontrado</h3>
+        <h3> Nenhum projeto encontrado</h3>
         <p>${categoriaAtual !== 'todos' ? `Nenhum projeto na categoria "${categoriaAtual}" ainda.` : 'Seja o primeiro a publicar um projeto!'}</p>
         ${categoriaAtual !== 'todos' ? '<button class="btn-outline" onclick="filtrarProjetos(\'todos\')" style="margin-top: 1rem;">Ver todos</button>' : '<a href="cadastro-engenheiro.html" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Criar perfil</a>'}
       </div>
@@ -181,7 +175,7 @@ function exibirProjetos() {
     const iniciais = (projeto.engenheiro_nome || projeto.engenheiro || 'Eng').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     const local = projeto.local || 'Moçambique';
     
-    // CORREÇÃO: Verificar se tags é array, se não for, converter ou usar array vazio
+    // Verificar se tags é array, se não for, converter ou usar array vazio
     let tags = [];
     if (projeto.tags) {
       if (Array.isArray(projeto.tags)) {
@@ -327,7 +321,7 @@ async function carregarPedidos() {
     if (!obras.length) {
       grid.innerHTML = `
         <div class="empty-projetos">
-          <h3>📭 Nenhuma obra em andamento</h3>
+          <h3> Nenhuma obra em andamento</h3>
           <p>Não há obras marcadas como em andamento no momento.</p>
         </div>
       `;
@@ -405,7 +399,7 @@ function atualizarNavbar() {
       <li class="item-dinamico"><a href="painel-engenheiro.html" class="btn-add-project" style="background:#3B6D11">Ver Pedidos</a></li>
       <li class="item-dinamico">
         <a href="#" class="btn-notificacoes" id="btnNotif" onclick="toggleChat(event)">
-          💬 Mensagens <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+           Mensagens <span class="notif-badge" id="notifBadge" style="display:none">0</span>
         </a>
       </li>
     `);
@@ -415,12 +409,12 @@ function atualizarNavbar() {
     inserirAntesSobre(`
       <li class="item-dinamico">
         <a href="#" class="btn-notificacoes" id="btnNotifPropostas" onclick="toggleNotificacoes(event)">
-          🔔 Propostas <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+           Propostas <span class="notif-badge" id="notifBadge" style="display:none">0</span>
         </a>
       </li>
       <li class="item-dinamico">
         <a href="#" class="btn-notificacoes" id="btnNotif" onclick="toggleChat(event)" style="background:#3B6D11">
-          💬 Mensagens <span class="notif-badge" id="chatBadge" style="display:none">0</span>
+           Mensagens <span class="notif-badge" id="chatBadge" style="display:none">0</span>
         </a>
       </li>
     `);
@@ -503,7 +497,7 @@ function renderPainelNotificacoes() {
         <div style="padding:12px 16px;border-bottom:1px solid #F1EFE8;">
           <div style="font-size:11px;color:#aaa;font-family:monospace">${p.pedido_codigo || 'PED-?'}</div>
           <div style="font-weight:700;font-size:13px;margin:2px 0">${p.pedido_tipo} · ${p.pedido_local}</div>
-          <div style="font-size:12px;color:#666">👷 ${p.engenheiro_nome}</div>
+          <div style="font-size:12px;color:#666"> ${p.engenheiro_nome}</div>
           <div style="font-size:13px;color:#3B6D11;font-weight:600;margin-top:4px">${p.valor ? Number(p.valor).toLocaleString('pt-MZ') + ' MZN' : 'Valor não definido'} · ${p.prazo || '–'}</div>
           <div style="font-size:12px;color:#888;margin-top:2px">${p.descricao ? p.descricao.substring(0,80)+'...' : ''}</div>
           <div style="margin-top:8px;display:flex;gap:6px">
@@ -526,7 +520,7 @@ function renderPainelNotificacoes() {
   `;
   painel.innerHTML = `
     <div style="padding:14px 16px;border-bottom:1px solid #F1EFE8;display:flex;align-items:center;justify-content:space-between;background:#FAFAF7">
-      <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800">🔔 Propostas Recebidas</span>
+      <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800"> Propostas Recebidas</span>
       <button onclick="document.getElementById('painelNotif').remove()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#aaa">✕</button>
     </div>
     <div style="overflow-y:auto;max-height:400px">${itens}</div>
@@ -552,7 +546,7 @@ async function aceitarProposta(id) {
     await fetch(`${API_URL}/propostas/${id}/aceitar`, {
       method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }
     });
-    mostrarToast('✅ Proposta aceite! O engenheiro será notificado.');
+    mostrarToast('Proposta aceite! O engenheiro será notificado.');
     document.getElementById('painelNotif')?.remove();
     carregarNotificacoes();
   } catch(e) { mostrarToast('Erro ao aceitar proposta.'); }
@@ -570,10 +564,8 @@ async function rejeitarProposta(id) {
   } catch(e) { mostrarToast('Erro ao rejeitar proposta.'); }
 }
 
-// ════════════════════════════════════════════
-//  CHAT INTERNO
-// ════════════════════════════════════════════
 
+//  CHAT INTERNO 
 let chatAberto = false;
 let conversaAtiva = null;
 let pollingInterval = null;
@@ -624,7 +616,7 @@ async function abrirPainelChat() {
   `;
   painel.innerHTML = `
     <div id="chatHeader" style="padding:14px 16px;background:#444441;color:white;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">💬 Mensagens</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px"> Mensagens</span>
       <button onclick="document.getElementById('painelChat').remove(); clearInterval(pollingInterval);" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:1.1rem">✕</button>
     </div>
     <div id="chatBody" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
@@ -728,7 +720,7 @@ async function renderMensagens(propostaId, meuId) {
               <span style="font-size:10px;color:#ccc;margin-top:2px;padding:0 4px">${hora}</span>
             </div>`;
         }).join('')
-      : '<div style="text-align:center;color:#ccc;font-size:12px;padding:2rem">Sem mensagens. Diga olá! 👋</div>';
+      : '<div style="text-align:center;color:#ccc;font-size:12px;padding:2rem">Sem mensagens. Diga olá! </div>';
 
     if (eraNoFundo) container.scrollTop = container.scrollHeight;
     carregarBadgeChat();
@@ -824,7 +816,7 @@ async function enviarPedido() {
     });
   } catch(e) {}
   fecharModal('modalContacto');
-  mostrarToast(`✅ Pedido enviado para ${engenheiroAtual}! Aguarde o contacto.`);
+  mostrarToast(` Pedido enviado para ${engenheiroAtual}! Aguarde o contacto.`);
   ['clienteNome','clienteTel','clienteMensagem'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
 }
 
@@ -891,7 +883,7 @@ async function verificarEngenheiro() {
       localStorage.setItem('role', result.user.role);
       localStorage.setItem('user', JSON.stringify(result.user));
 
-      mostrarToast(`✅ Bem-vindo, ${result.user.nome}! Redirecionando...`);
+      mostrarToast(` Bem-vindo, ${result.user.nome}! Redirecionando...`);
       fecharModal('modalLoginProjetos');
 
       // Redirecionar conforme o tipo de utilizador
@@ -906,7 +898,7 @@ async function verificarEngenheiro() {
       }, 1500);
     } else {
       if (errorDiv) {
-        errorDiv.textContent = result.error || '❌ Usuário não encontrado! Faça o registro primeiro.';
+        errorDiv.textContent = result.error || ' Usuário não encontrado! Faça o registro primeiro.';
         errorDiv.style.display = 'block';
       }
       mostrarToast(result.error || 'Erro no login!', true);

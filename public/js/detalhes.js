@@ -67,11 +67,11 @@ const projetosDataFallback = {
   }
 };
 
-// ── VARIÁVEIS GLOBAIS ──
+//VARIÁVEIS GLOBAIS
 let projetoAtual = null;
 let engenheiroAtual = '';
 
-// ── PEGAR ID DA URL ──
+//PEGAR ID DA URL
 function getProjetoId() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
@@ -79,7 +79,7 @@ function getProjetoId() {
   return id;
 }
 
-// ── CARREGAR PROJETO DO BACKEND (CORRIGIDO) ──
+//CARREGAR PROJETO DO BACKEND
 async function carregarProjeto() {
   const projetoId = getProjetoId();
   
@@ -89,7 +89,6 @@ async function carregarProjeto() {
   }
   
   try {
-    // CORREÇÃO: Usar API_URL correta
     const url = `${API_URL}/projetos/${projetoId}`;
     console.log('Buscando projeto em:', url);
     
@@ -155,7 +154,7 @@ function usarFallback(projetoId) {
   }
 }
 
-// ── EXIBIR DETALHES DO PROJETO ──
+//EXIBIR DETALHES DO PROJETO
 function exibirDetalhes() {
   if (!projetoAtual) return;
   
@@ -183,7 +182,7 @@ function exibirDetalhes() {
   
   comentariosHtml = `
     <div class="comentarios-section">
-      <h4>💬 Comentários (${comentarios.length})</h4>
+      <h4> Comentários (${comentarios.length})</h4>
       ${comentarios.length > 0 ? comentarios.map(com => `
         <div class="comentario-card">
           <div class="comentario-header">
@@ -230,7 +229,7 @@ function exibirDetalhes() {
         </div>
         
         <button class="btn-contato-contato" onclick="abrirModalContacto('${escapeHtml(engenheiro.nome)}')">
-          📞 Pedir contacto com o engenheiro
+           Pedir contacto com o engenheiro
         </button>
       </div>
     </div>

@@ -1,7 +1,5 @@
-// ============================================================
 //  OBRAVIA — cadastro.js
 //  Gestão do formulário de cadastro de engenheiros
-// ============================================================
 
 // Fechar modal
 function fecharModal(id) {

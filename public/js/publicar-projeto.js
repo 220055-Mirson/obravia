@@ -53,7 +53,7 @@ async function carregarProjetos() {
             if (container) {
                 container.innerHTML = `
                     <div class="empty-projetos">
-                        🔐 Sessão expirada. Faça login novamente.<br>
+                         Sessão expirada. Faça login novamente.<br>
                         <a href="index.html" style="color: var(--laranja);">Ir para página inicial</a>
                     </div>
                 `;
@@ -66,7 +66,7 @@ async function carregarProjetos() {
         if (container) {
             container.innerHTML = `
                 <div class="empty-projetos">
-                    ⚠️ Erro ao conectar com o servidor.<br>
+                     Erro ao conectar com o servidor.<br>
                     Verifique se o backend está rodando.
                 </div>
             `;
@@ -86,7 +86,7 @@ function atualizarListaProjetos() {
     if (projetosDoEngenheiro.length === 0) {
         container.innerHTML = `
             <div class="empty-projetos">
-                📭 Nenhum projeto publicado ainda.<br>
+                 Nenhum projeto publicado ainda.<br>
                 Preencha o formulário acima para começar!
             </div>
         `;
@@ -110,12 +110,12 @@ function atualizarListaProjetos() {
                     <h3 class="projeto-card-title">${escapeHtml(projeto.titulo)}</h3>
                     <p class="projeto-card-desc">${escapeHtml(projeto.descricao.substring(0, 100))}${projeto.descricao.length > 100 ? '...' : ''}</p>
                     <div class="projeto-card-meta">
-                        <span>🏷️ ${projeto.categoria}</span>
-                        <span>📍 ${projeto.local || 'Moçambique'}</span>
+                        <span> ${projeto.categoria}</span>
+                        <span> ${projeto.local || 'Moçambique'}</span>
                     </div>
                     <div class="card-actions">
-                        <button class="btn-editar" onclick="abrirModalEditar(${projeto.id})">✏️ Editar</button>
-                        <button class="btn-excluir" onclick="excluirProjeto(${projeto.id})">🗑️ Excluir</button>
+                        <button class="btn-editar" onclick="abrirModalEditar(${projeto.id})"> Editar</button>
+                        <button class="btn-excluir" onclick="excluirProjeto(${projeto.id})"> Excluir</button>
                     </div>
                 </div>
             </div>
@@ -203,7 +203,7 @@ async function publicarProjeto(event) {
             imagensSelecionadas = [];
             atualizarPreview();
             
-            mostrarToast("✅ Projeto publicado com sucesso!");
+            mostrarToast(" Projeto publicado com sucesso!");
             
             // Limpar campos restantes
             if (document.getElementById("projetoCategoria")) document.getElementById("projetoCategoria").value = "";
@@ -232,7 +232,7 @@ async function publicarProjeto(event) {
     }
 }
 
-// ── EDITAR PROJETO ──
+// EDITAR PROJETO
 async function abrirModalEditar(id) {
     const projeto = projetosDoEngenheiro.find(p => p.id === id);
     if (!projeto) return;
@@ -291,7 +291,7 @@ async function salvarEdicao(event) {
         });
         
         if (response.ok) {
-            mostrarToast("✅ Projeto atualizado com sucesso!");
+            mostrarToast(" Projeto atualizado com sucesso!");
             fecharModal();
             carregarProjetos();
         } else {
@@ -305,7 +305,7 @@ async function salvarEdicao(event) {
 
 // ── EXCLUIR PROJETO ──
 async function excluirProjeto(id) {
-    if (!confirm("⚠️ Tem certeza que deseja excluir este projeto permanentemente? Esta ação não pode ser desfeita!")) return;
+    if (!confirm(" Tem certeza que deseja excluir este projeto permanentemente? Esta ação não pode ser desfeita!")) return;
     
     try {
         const response = await fetch(`${getApiUrl()}/projetos/${id}`, {
@@ -316,7 +316,7 @@ async function excluirProjeto(id) {
         });
         
         if (response.ok) {
-            mostrarToast("✅ Projeto excluído com sucesso!");
+            mostrarToast(" Projeto excluído com sucesso!");
             carregarProjetos();
         } else {
             const error = await response.json();
@@ -327,7 +327,7 @@ async function excluirProjeto(id) {
     }
 }
 
-// ── UPLOAD DE IMAGENS (Preview local) ──
+// UPLOAD DE IMAGENS 
 function inicializarUpload() {
     const uploadArea = document.getElementById('uploadArea');
     const fotosInput = document.getElementById('fotosInput');
@@ -405,7 +405,7 @@ function removerImagem(index) {
     }
 }
 
-// ── UTILITÁRIOS ──
+// UTILITÁRIOS
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -435,7 +435,7 @@ function mostrarToast(msg, isError = false) {
     }, 4000);
 }
 
-// ── AUTH ──
+// AUTH
 function atualizarWelcome() {
     const nome = getUsuarioLogado();
     const bemVindo = document.getElementById("bemVindo");
@@ -471,7 +471,7 @@ function verificarAcesso() {
     return true;
 }
 
-// ── EVENTOS E INICIALIZAÇÃO ──
+// EVENTOS E INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM carregado - Inicializando página de projetos');
     

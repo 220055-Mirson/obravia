@@ -329,37 +329,37 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">Visão Geral</div>
       <div class="nav-item active" onclick="showPanel('dashboard', this)">
-        <span class="icon">📊</span> Dashboard
+        <span class="icon"></span> Dashboard
       </div>
       <div class="nav-item" onclick="showPanel('fluxo', this)">
-        <span class="icon">🔄</span> Fluxo Kanban
+        <span class="icon"></span> Fluxo Kanban
       </div>
 
       <div class="nav-section-label">Gestão</div>
       <div class="nav-item" onclick="showPanel('pedidos', this)">
-        <span class="icon">📋</span> Pedidos
+        <span class="icon"></span> Pedidos
         <span class="nav-badge" id="badgePedidos">5</span>
       </div>
       <div class="nav-item" onclick="showPanel('propostas', this)">
-        <span class="icon">✏️</span> Propostas
+        <span class="icon"></span> Propostas
         <span class="nav-badge" id="badgePropostas">3</span>
       </div>
       <div class="nav-item" onclick="showPanel('engenheiros', this)">
-        <span class="icon">👷</span> Engenheiros
+        <span class="icon"></span> Engenheiros
       </div>
       <div class="nav-item" onclick="showPanel('clientes', this)">
-        <span class="icon">👤</span> Clientes
+        <span class="icon"></span> Clientes
       </div>
       <div class="nav-item" onclick="showPanel('financeiro', this)">
-        <span class="icon">💰</span> Financeiro
+        <span class="icon"></span> Financeiro
       </div>
 
       <div class="nav-section-label">Config</div>
       <div class="nav-item" onclick="window.location.href='admin.html'">
-        <span class="icon">⚙️</span> Admin Clássico
+        <span class="icon"></span> Admin Clássico
       </div>
       <div class="nav-item" onclick="logout()">
-        <span class="icon">🚪</span> Sair
+        <span class="icon"></span> Sair
       </div>
     </nav>
 
@@ -385,19 +385,19 @@
       <div class="panel active" id="panel-dashboard">
         <div class="stats-grid">
           <div class="stat-card laranja">
-            <div class="stat-icon">📋</div>
+            <div class="stat-icon"></div>
             <div class="label">Pedidos Abertos</div>
             <div class="value" id="statPedidosAbertos">0</div>
             <div class="sub">Aguardam propostas</div>
           </div>
           <div class="stat-card amarelo">
-            <div class="stat-icon">✏️</div>
+            <div class="stat-icon"></div>
             <div class="label">Propostas Enviadas</div>
             <div class="value" id="statPropostas">0</div>
             <div class="sub">Esta semana</div>
           </div>
           <div class="stat-card verde">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"></div>
             <div class="label">Contratos Fechados</div>
             <div class="value" id="statFechados">0</div>
             <div class="sub">Este mês</div>
@@ -441,28 +441,28 @@
         <div class="fluxo-board">
           <div class="kanban-col">
             <div class="kanban-header">
-              <span class="kanban-title">📥 Aberto</span>
+              <span class="kanban-title">Aberto</span>
               <span class="kanban-count" id="k-aberto">0</span>
             </div>
             <div class="kanban-items" id="kanban-aberto"></div>
           </div>
           <div class="kanban-col">
             <div class="kanban-header">
-              <span class="kanban-title">✏️ Com Propostas</span>
+              <span class="kanban-title"> Com Propostas</span>
               <span class="kanban-count" id="k-propostas">0</span>
             </div>
             <div class="kanban-items" id="kanban-propostas"></div>
           </div>
           <div class="kanban-col">
             <div class="kanban-header">
-              <span class="kanban-title">🤝 Em Negociação</span>
+              <span class="kanban-title"> Em Negociação</span>
               <span class="kanban-count" id="k-negociacao">0</span>
             </div>
             <div class="kanban-items" id="kanban-negociacao"></div>
           </div>
           <div class="kanban-col">
             <div class="kanban-header">
-              <span class="kanban-title">✅ Fechado</span>
+              <span class="kanban-title"> Fechado</span>
               <span class="kanban-count" id="k-fechado">0</span>
             </div>
             <div class="kanban-items" id="kanban-fechado"></div>
@@ -477,7 +477,7 @@
         </div>
         <div class="table-card">
           <div class="table-search">
-            <input class="search-input" type="text" placeholder="🔍 Pesquisar..." oninput="filtrarTabela('pedidos', this.value)">
+            <input class="search-input" type="text" placeholder="Pesquisar..." oninput="filtrarTabela('pedidos', this.value)">
             <div class="filter-pills" id="pillsPedidos">
               <span class="pill active" onclick="setPill('pedidos','todos',this)">Todos</span>
               <span class="pill" onclick="setPill('pedidos','aberto',this)">Abertos</span>
@@ -507,7 +507,7 @@
         <div class="panel-header"><h2>Propostas Recebidas</h2></div>
         <div class="table-card">
           <div class="table-search">
-            <input class="search-input" type="text" placeholder="🔍 Pesquisar...">
+            <input class="search-input" type="text" placeholder=" Pesquisar...">
           </div>
           <table>
             <thead>
@@ -525,12 +525,12 @@
         </div>
       </div>
 
-      <!-- ── ENGENHEIROS ── -->
+      <!--ENGENHEIROS-->
       <div class="panel" id="panel-engenheiros">
         <div class="panel-header"><h2>Engenheiros Registados</h2></div>
         <div class="table-card">
           <div class="table-search">
-            <input class="search-input" type="text" placeholder="🔍 Pesquisar engenheiro...">
+            <input class="search-input" type="text" placeholder=" Pesquisar engenheiro...">
             <div class="filter-pills">
               <span class="pill active">Todos</span>
               <span class="pill" onclick="setPill('eng','verificado',this)">Verificados</span>
@@ -553,7 +553,7 @@
         </div>
       </div>
 
-      <!-- ── CLIENTES ── -->
+      <!--CLIENTES-->
       <div class="panel" id="panel-clientes">
         <div class="panel-header"><h2>Clientes (Pedidos Publicados)</h2></div>
         <div class="table-card">
@@ -572,31 +572,31 @@
         </div>
       </div>
 
-      <!-- ── FINANCEIRO ── -->
+      <!--FINANCEIRO-->
       <div class="panel" id="panel-financeiro">
 
         <!-- Cards resumo -->
         <div class="stats-grid" id="statsFinanceiro" style="margin-bottom:1.5rem">
           <div class="stat-card laranja">
-            <div class="stat-icon">💰</div>
+            <div class="stat-icon"></div>
             <div class="label">Volume Total</div>
             <div class="value" id="sfVolume">—</div>
             <div class="sub">Valor de todas as propostas aceites</div>
           </div>
           <div class="stat-card verde">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"></div>
             <div class="label">Comissões Confirmadas</div>
             <div class="value" id="sfConfirmadas">—</div>
             <div class="sub">Já registadas como pagas</div>
           </div>
           <div class="stat-card amarelo">
-            <div class="stat-icon">⏳</div>
+            <div class="stat-icon"></div>
             <div class="label">Comissões Pendentes</div>
             <div class="value" id="sfPendentes">—</div>
             <div class="sub">Aguardam confirmação</div>
           </div>
           <div class="stat-card azul">
-            <div class="stat-icon">🏗️</div>
+            <div class="stat-icon"></div>
             <div class="label">Total Engenheiros</div>
             <div class="value" id="sfEngenheiros">—</div>
             <div class="sub">Valor líquido a pagar</div>
@@ -606,7 +606,7 @@
         <!-- Tabela de comissões por tipo -->
         <div class="table-card" style="margin-bottom:1.5rem;padding:1.2rem 1.5rem">
           <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;margin-bottom:1rem">
-            📊 Comissões por Tipo de Profissional
+             Comissões por Tipo de Profissional
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="tabelaTipos">
             <!-- preenchido via JS -->
@@ -901,13 +901,13 @@
 
     function statusBadge(s) {
       const map = { aberto: 'status-aberto', propostas: 'status-propostas', negociacao: 'status-propostas', fechado: 'status-fechado' };
-      const labels = { aberto: '📥 Aberto', propostas: '✏️ Com propostas', negociacao: '🤝 Negociação', fechado: '✅ Fechado' };
+      const labels = { aberto: ' Aberto', propostas: ' Com propostas', negociacao: ' Negociação', fechado: ' Fechado' };
       return `<span class="status-badge ${map[s] || ''}">${labels[s] || s}</span>`;
     }
 
     function urgBadge(u) {
-      if (u === 'Muito urgente') return `<span style="color:#D85A30;font-size:12px;font-weight:600">🔴 ${u}</span>`;
-      if (u === '1 mês') return `<span style="color:#B45309;font-size:12px">🟠 ${u}</span>`;
+      if (u === 'Muito urgente') return `<span style="color:#D85A30;font-size:12px;font-weight:600"> ${u}</span>`;
+      if (u === '1 mês') return `<span style="color:#B45309;font-size:12px"> ${u}</span>`;
       return `<span style="font-size:12px;color:#888">${u}</span>`;
     }
 
@@ -969,7 +969,7 @@
         renderEngenheiros();
         mostrarToast('Engenheiro rejeitado e removido.');
       } catch(e) {
-        mostrarToast('❌ Erro ao rejeitar. Verifique a ligação.');
+        mostrarToast(' Erro ao rejeitar. Verifique a ligação.');
       }
     }
 
@@ -1055,11 +1055,11 @@
       }
       tbody.innerHTML = transacoesData.map(t => {
         const statusMap = {
-          pendente:   '<span class="status-badge status-propostas">⏳ Pendente</span>',
-          confirmado: '<span class="status-badge status-fechado">✅ Confirmado</span>',
+          pendente:   '<span class="status-badge status-propostas"> Pendente</span>',
+          confirmado: '<span class="status-badge status-fechado"> Confirmado</span>',
           cancelado:  '<span class="status-badge" style="background:#FEF2F2;color:#DC2626">✕ Cancelado</span>'
         };
-        const tipoLabel = { empresa: '🏢 Empresa (8%)', senior: '👷 Sénior (5%)', junior: '🌱 Júnior (3%)' };
+        const tipoLabel = { empresa: ' Empresa (8%)', senior: ' Sénior (5%)', junior: ' Júnior (3%)' };
         return `<tr>
           <td class="td-id">${t.pedido_codigo || '—'}<br><span style="font-size:11px;color:#aaa">${t.pedido_tipo || ''} · ${t.pedido_local || ''}</span></td>
           <td class="td-nome">${t.engenheiro_nome || '—'}</td>
@@ -1103,8 +1103,6 @@
         carregarTransacoes();
       } catch(e) { mostrarToast('Erro ao cancelar.'); }
     }
-
-    // showPanel já inclui carregarFinanceiro — ver definição acima
 
   </script>
 </body>

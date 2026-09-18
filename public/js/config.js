@@ -25,4 +25,4 @@ const API_URL = API_CONFIG.getApiUrl();
 const UPLOADS_URL = API_CONFIG.getUploadsUrl();
 
 console.log('🔧 Ambiente:', window.location.hostname === 'localhost' ? 'Desenvolvimento' : 'Produção');
-console.log('📡 API URL:', API_URL);
+console.log(' API URL:', API_URL);

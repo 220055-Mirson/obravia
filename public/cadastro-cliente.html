@@ -227,8 +227,8 @@
     function toggleSenha() {
       const input = document.getElementById('senha');
       const btn   = document.getElementById('toggleBtn');
-      if (input.type === 'password') { input.type = 'text';     btn.textContent = '🙈'; }
-      else                           { input.type = 'password'; btn.textContent = '👁'; }
+      if (input.type === 'password') { input.type = 'text';     btn.textContent = ''; }
+      else                           { input.type = 'password'; btn.textContent = ''; }
     }
 
     function verificarForca(v) {
@@ -244,13 +244,13 @@
 
       if (forte) {
         [b1,b2,b3].forEach(b => b.classList.add('ativa','forte'));
-        lbl.textContent = '✅ Senha forte'; lbl.style.color = '#3B6D11';
+        lbl.textContent = 'Senha forte'; lbl.style.color = '#3B6D11';
       } else if (media) {
         b1.classList.add('ativa','media'); b2.classList.add('ativa','media');
-        lbl.textContent = '⚠️ Senha média'; lbl.style.color = '#B45309';
+        lbl.textContent = ' Senha média'; lbl.style.color = '#B45309';
       } else {
         b1.classList.add('ativa','fraca');
-        lbl.textContent = '❌ Senha fraca'; lbl.style.color = '#DC2626';
+        lbl.textContent = ' Senha fraca'; lbl.style.color = '#DC2626';
       }
     }
 

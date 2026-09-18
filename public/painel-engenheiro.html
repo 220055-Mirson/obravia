@@ -475,23 +475,23 @@
       <div class="filter-card">
         <div class="filter-title">Filtrar por tipo</div>
         <div class="filter-item active" onclick="filtrar('todos', this)">
-          <span>🏗️ Todos</span>
+          <span> Todos</span>
           <span class="filter-count" id="cnt-todos">0</span>
         </div>
         <div class="filter-item" onclick="filtrar('Residencial', this)">
-          <span>🏠 Residencial</span>
+          <span> Residencial</span>
           <span class="filter-count" id="cnt-Residencial">0</span>
         </div>
         <div class="filter-item" onclick="filtrar('Comercial', this)">
-          <span>🏢 Comercial</span>
+          <span> Comercial</span>
           <span class="filter-count" id="cnt-Comercial">0</span>
         </div>
         <div class="filter-item" onclick="filtrar('Industrial', this)">
-          <span>🏭 Industrial</span>
+          <span> Industrial</span>
           <span class="filter-count" id="cnt-Industrial">0</span>
         </div>
         <div class="filter-item" onclick="filtrar('Infra-estrutura', this)">
-          <span>🌉 Infra</span>
+          <span> Infra</span>
           <span class="filter-count" id="cnt-Infra-estrutura">0</span>
         </div>
       </div>
@@ -506,7 +506,7 @@
           <p>Gerencie os seus pedidos e propostas</p>
         </div>
         <div class="search-bar">
-          <span>🔍</span>
+          <span></span>
           <input type="text" placeholder="Pesquisar..." oninput="pesquisar(this.value)" id="searchInput">
         </div>
       </div>
@@ -514,10 +514,10 @@
       <!-- TABS -->
       <div class="tabs">
         <button class="tab-btn active" onclick="mudarTab('pedidos', this)">
-          📋 Pedidos de Clientes
+           Pedidos de Clientes
         </button>
         <button class="tab-btn" onclick="mudarTab('directos', this)">
-          📩 Contactos Directos
+           Contactos Directos
           <span class="tab-badge" id="badgeDirectos">0</span>
         </button>
       </div>
@@ -538,7 +538,7 @@
       <div class="tab-panel" id="tab-directos">
         <div class="pedidos-list" id="directosList">
           <div class="empty-state">
-            <div class="icon">⏳</div>
+            <div class="icon"></div>
             <h3>A carregar contactos...</h3>
             <p>Aguarde um momento.</p>
           </div>
@@ -553,7 +553,7 @@
   <div class="modal-overlay" id="modalProposta">
     <div class="modal-box">
       <div class="modal-header">
-        <h2>✏️ Enviar Proposta</h2>
+        <h2> Enviar Proposta</h2>
         <button class="btn-close" onclick="fecharModal()">✕</button>
       </div>
 
@@ -669,7 +669,7 @@
       }
 
       if (!dados.length) {
-        lista.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><h3>Sem pedidos</h3><p>Não há pedidos para este filtro.</p></div>`;
+        lista.innerHTML = `<div class="empty-state"><div class="icon"></div><h3>Sem pedidos</h3><p>Não há pedidos para este filtro.</p></div>`;
         return;
       }
 
@@ -701,9 +701,9 @@
             </div>
             <p class="pedido-desc">${p.descricao}</p>
             <div class="card-meta">
-              ${p.talhao ? `<span class="meta-item">🏗️ <strong>${p.talhao} m²</strong></span>` : ''}
-              <span class="meta-item">💰 <strong>${orcamento}</strong></span>
-              <span class="meta-item">👤 ${p.nome_cliente}</span>
+              ${p.talhao ? `<span class="meta-item"> <strong>${p.talhao} m²</strong></span>` : ''}
+              <span class="meta-item"> <strong>${orcamento}</strong></span>
+              <span class="meta-item"> ${p.nome_cliente}</span>
             </div>
           </div>
           <div class="card-footer">
@@ -790,7 +790,7 @@
 
       fecharModal();
       renderPedidos(document.getElementById('searchInput')?.value || '');
-      mostrarNotif('✅ Proposta enviada com sucesso! O cliente será notificado.', 'sucesso');
+      mostrarNotif(' Proposta enviada com sucesso! O cliente será notificado.', 'sucesso');
 
       btnEnviar.textContent = 'Enviar Proposta';
       btnEnviar.disabled = false;
@@ -842,7 +842,7 @@
               <div style="font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Descrição</div>
               <p style="font-size:14px;color:#444;line-height:1.65;background:#F1EFE8;border-radius:8px;padding:1rem">${p.descricao}</p>
             </div>
-            ${p.contacto_preferencia ? `<div style="font-size:12px;color:#888">📱 Preferência de contacto: <strong>${p.contacto_preferencia}</strong></div>` : ''}
+            ${p.contacto_preferencia ? `<div style="font-size:12px;color:#888"> Preferência de contacto: <strong>${p.contacto_preferencia}</strong></div>` : ''}
           </div>
           <div style="padding:1rem 1.5rem;border-top:1px solid #F1EFE8;display:flex;gap:0.8rem;justify-content:flex-end">
             <button onclick="document.getElementById('modalDetalhes').remove()" style="background:#F1EFE8;color:#444;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Fechar</button>
@@ -892,11 +892,11 @@
       if (tab === 'directos') carregarDirectos();
     }
 
-    // ── CONTACTOS DIRECTOS ──
+    // CONTACTOS DIRECTOS
     async function carregarDirectos() {
       const lista = document.getElementById('directosList');
       if (!lista) return;
-      lista.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>A carregar...</h3></div>';
+      lista.innerHTML = '<div class="empty-state"><div class="icon"></div><h3>A carregar...</h3></div>';
 
       try {
         const res = await fetch(`${BASE}/api/pedidos-directos`, {
@@ -915,7 +915,7 @@
 
         if (!dados.length) {
           lista.innerHTML = `<div class="empty-state">
-            <div class="icon">📩</div>
+            <div class="icon"></div>
             <h3>Sem contactos directos</h3>
             <p>Quando um cliente clicar em "Pedir contacto" num dos seus projectos, aparece aqui.</p>
           </div>`;
@@ -931,19 +931,19 @@
                 <div class="pd-meta">${data}${d.projeto_titulo ? ` · Projecto: ${d.projeto_titulo}` : ''}</div>
                 <div class="pd-cliente">👤 ${d.cliente_nome} ${isNovo ? '<span style="background:var(--laranja);color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:700">NOVO</span>' : ''}</div>
                 <div class="pd-info">
-                  ${d.tipo_projeto ? `📐 ${d.tipo_projeto}` : ''}
+                  ${d.tipo_projeto ? ` ${d.tipo_projeto}` : ''}
                 </div>
                 ${d.mensagem ? `<div class="pd-msg">"${d.mensagem}"</div>` : ''}
               </div>
               <div class="pd-footer">
-                <span class="pd-tel">${d.cliente_tel ? `📞 ${d.cliente_tel}` : 'Sem telefone'}</span>
+                <span class="pd-tel">${d.cliente_tel ? ` ${d.cliente_tel}` : 'Sem telefone'}</span>
                 ${isNovo ? `<button class="btn-marcar-lido" onclick="marcarLido(${d.id})">✓ Marcar como lido</button>` : '<span style="font-size:11px;color:#bbb">✓ Lido</span>'}
               </div>
             </div>`;
         }).join('');
 
       } catch(e) {
-        lista.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Erro ao carregar</h3><p>Verifique a ligação ao servidor.</p></div>';
+        lista.innerHTML = '<div class="empty-state"><div class="icon"></div><h3>Erro ao carregar</h3><p>Verifique a ligação ao servidor.</p></div>';
       }
     }
 
