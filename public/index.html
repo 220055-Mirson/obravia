@@ -405,6 +405,21 @@
     </div>
 </div>
 
+    <!-- MODAL: Aviso / Recado importante -->
+    <div class="modal-overlay" id="modalAvisoRecado">
+      <div class="modal">
+        <p class="modal-titulo">Atenção — Recado importante</p>
+        <p class="modal-sub">Leia antes de prosseguir</p>
+        <div style="font-size:14px;color:#444441;line-height:1.5">
+          <p><strong>Cliente:</strong> evite fazer pagamentos sem antes encontrar-se pessoalmente com o profissional.</p>
+          <p><strong>Engenheiro:</strong> evite fazer projetos antes de se encontrar com o cliente pessoalmente.</p>
+        </div>
+        <div class="modal-acoes" style="margin-top:14px">
+          <button class="btn-cancelar" onclick="fecharModal('modalAvisoRecado')">Fechar</button>
+        </div>
+      </div>
+    </div>
+
   <script src="js/config.js"></script>
   <script src="js/script.js"></script>
   <script>
@@ -435,13 +450,7 @@
         const container = document.getElementById('heroCreateContainer');
         if (!container) return;
         if (token) {
-          container.innerHTML = `
-            <div class="login-warning" role="status">
-              <b>Atenção</b>
-              <div>Cliente: evite fazer pagamentos sem antes encontrar-se pessoalmente com o profissional.</div>
-              <div style="margin-top:6px;">Eng.: evite fazer projetos antes de se encontrar com o cliente pessoalmente.</div>
-            </div>
-          `;
+          container.innerHTML = `<button class="btn-primary" onclick="abrirModalAviso()">Atenção, recado importante...</button>`;
         } else {
           // mantém o link padrão (já existe no HTML)
         }
@@ -449,6 +458,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', checkLoginReplaceButton);
+
+    // Abre o modal de aviso/recado
+    function abrirModalAviso() {
+      const modal = document.getElementById('modalAvisoRecado');
+      if (modal) modal.classList.add('aberto');
+    }
   </script>
 </body>
 </html>
