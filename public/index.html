@@ -171,6 +171,17 @@
       transition: background 0.2s, transform 0.1s;
       box-shadow: 0 4px 16px rgba(216,90,48,0.4);
     }
+    .login-warning {
+      background: #fff6ea;
+      border: 1px solid #f0c084;
+      color: #5a3a1a;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+      max-width: 420px;
+    }
+    .login-warning b { display:block; margin-bottom:6px; color:#b65a20; }
     #heroSection .btn-primary:hover {
       background: #993C1D;
       transform: translateY(-2px);
@@ -222,7 +233,9 @@
       <p class="hero-tagline">Isso é a <strong>OBRAVIA.</strong></p>
       <p>Conectamos clientes a engenheiros verificados em Moçambique — com transparência, segurança e propostas reais.</p>
       <div class="hero-actions">
-        <a href="cadastro-engenheiro.html" class="btn-primary">Criar perfil de engenheiro</a>
+        <div id="heroCreateContainer">
+          <a href="cadastro-engenheiro.html" class="btn-primary">Criar perfil de engenheiro</a>
+        </div>
         <button class="btn-outline" onclick="pedirServico()">Pedir um serviço</button>
       </div>
     </div>
@@ -414,6 +427,28 @@
         if (overlay) overlay.classList.remove('visivel');
       });
     });
+
+    // Substitui o botão "Criar perfil de engenheiro" por aviso quando usuário estiver logado
+    function checkLoginReplaceButton() {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const container = document.getElementById('heroCreateContainer');
+        if (!container) return;
+        if (token) {
+          container.innerHTML = `
+            <div class="login-warning" role="status">
+              <b>Atenção</b>
+              <div>Cliente: evite fazer pagamentos sem antes encontrar-se pessoalmente com o profissional.</div>
+              <div style="margin-top:6px;">Eng.: evite fazer projetos antes de se encontrar com o cliente pessoalmente.</div>
+            </div>
+          `;
+        } else {
+          // mantém o link padrão (já existe no HTML)
+        }
+      } catch (e) { console.error('checkLoginReplaceButton', e); }
+    }
+
+    document.addEventListener('DOMContentLoaded', checkLoginReplaceButton);
   </script>
 </body>
 </html>
