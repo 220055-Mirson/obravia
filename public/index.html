@@ -44,11 +44,14 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 0.8rem;
+      width: 100%;
+      margin: 0;
     }
     .filtros-categorias {
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+      order: 2;
     }
     .filtro-provincia {
       padding: 8px 14px;
@@ -63,6 +66,7 @@
       outline: none;
       transition: border-color 0.2s;
       min-width: 180px;
+      order: 1;
     }
     .filtro-provincia:focus,
     .filtro-provincia:hover {
@@ -78,11 +82,26 @@
       margin-left: auto;
     }
     @media (max-width: 600px) {
-      .filtros-row { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-      .filtros-categorias { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      .filtros-row {
+        flex-direction: column;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        gap: 0.35rem;
+      }
+      .filtros-categorias {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
       .filtros-categorias::-webkit-scrollbar { display: none; }
-      .filtro-provincia { width: auto; min-width: 140px; }
-      .fase2-header .filtro-provincia { margin-left: 0; width: auto; }
+      .filtro-provincia {
+        width: 100%;
+        min-width: 0;
+        order: 1;
+      }
+      .fase2-header .filtro-provincia { margin-left: 0; width: 100%; }
     }
 
     /* ── HERO COM IMAGEM DE FUNDO ── */
