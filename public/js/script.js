@@ -21,11 +21,21 @@ function filtrarProvinciaPedidos(provincia) {
   renderPedidosFiltrados();
 }
 
+function mostrarEmRecentes(projeto) {
+  const secao = (projeto.secao || projeto.exibir_em || '').toString().toLowerCase();
+  return secao === 'recentes' || secao === 'ambas' || (!secao && projeto.categoria);
+}
+
+function mostrarEmAndamento(projeto) {
+  const secao = (projeto.secao || projeto.exibir_em || '').toString().toLowerCase();
+  return secao === 'andamento' || secao === 'ambas' || (projeto.status && (projeto.status.toLowerCase().includes('andament') || projeto.status.toLowerCase().includes('em andamento')));
+}
+
 function renderProjectosFiltrados() {
   const grid = document.getElementById('projetosGrid');
   if (!grid) return;
 
-  let dados = _todosProjectos;
+  let dados = _todosProjectos.filter(mostrarEmRecentes);
 
   if (_categoriaActiva !== 'todos') {
     dados = dados.filter(p => p.categoria === _categoriaActiva);
@@ -141,9 +151,9 @@ function filtrarProjetos(categoria, provincia) {
 
 function aplicarFiltro() {
   if (categoriaAtual === 'todos') {
-    projetosFiltrados = [...todosProjetos];
+    projetosFiltrados = [...todosProjetos.filter(mostrarEmRecentes)];
   } else {
-    projetosFiltrados = todosProjetos.filter(p => p.categoria === categoriaAtual);
+    projetosFiltrados = todosProjetos.filter(p => mostrarEmRecentes(p) && p.categoria === categoriaAtual);
   }
   // Filtro de província
   if (_provinciaProjectos !== 'todos') {
@@ -314,10 +324,7 @@ async function carregarPedidos() {
   function exibirObras() {
     const grid = document.getElementById('obrasGrid');
     if (!grid) return;
-    const obras = (todosProjetos || []).filter(p => {
-      const s = (p.status || p.estado || p.andamento || '').toString().toLowerCase();
-      return s.includes('andament') || s.includes('em andamento') || (p.obras_em_andamento === true);
-    });
+    const obras = (todosProjetos || []).filter(p => mostrarEmAndamento(p));
     if (!obras.length) {
       grid.innerHTML = `
         <div class="empty-projetos">

@@ -99,6 +99,7 @@ async function inicializarBanco() {
             titulo            TEXT NOT NULL,
             descricao         TEXT NOT NULL,
             categoria         TEXT DEFAULT 'Outros',
+            secao             TEXT DEFAULT 'recentes',
             local             TEXT,
             tags              TEXT,
             fotos             JSONB DEFAULT '[]',
@@ -109,6 +110,7 @@ async function inicializarBanco() {
             data_atualizacao  TIMESTAMPTZ
         )
     `);
+    await run(`ALTER TABLE projetos ADD COLUMN IF NOT EXISTS secao TEXT DEFAULT 'recentes'`);
 
     // ── pedidos  (NOVO — clientes publicam pedidos de orçamento) ──
     await run(`
@@ -362,16 +364,16 @@ async function removerSessao(token) {
 // ════════════════════════════════════════════
 
 async function criarProjeto(dados) {
-    const { titulo, descricao, categoria, local, tags,
+    const { titulo, descricao, categoria, secao, local, tags,
             fotos, foto_capa, usuario_id, engenheiro_nome } = dados;
     const fotosJson = JSON.stringify(fotos || []);
     const tagsStr   = Array.isArray(tags) ? tags.join(',') : (tags || '');
     const res = await run(
         `INSERT INTO projetos
-            (titulo, descricao, categoria, local, tags, fotos, foto_capa, usuario_id, engenheiro_nome)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+            (titulo, descricao, categoria, secao, local, tags, fotos, foto_capa, usuario_id, engenheiro_nome)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
          RETURNING id`,
-        [titulo, descricao, categoria || 'Outros', local || '',
+        [titulo, descricao, categoria || 'Outros', secao || 'recentes', local || '',
          tagsStr, fotosJson, foto_capa || '', usuario_id, engenheiro_nome || '']
     );
     return res.rows[0].id;
@@ -393,14 +395,14 @@ async function buscarProjetoPorId(id) {
 }
 
 async function atualizarProjeto(id, dados) {
-    const { titulo, descricao, categoria, local, tags } = dados;
+    const { titulo, descricao, categoria, secao, local, tags } = dados;
     const tagsStr = Array.isArray(tags) ? tags.join(',') : (tags || '');
     await run(
         `UPDATE projetos
-         SET titulo=$1, descricao=$2, categoria=$3, local=$4, tags=$5,
+         SET titulo=$1, descricao=$2, categoria=$3, secao=$4, local=$5, tags=$6,
              data_atualizacao=NOW()
-         WHERE id=$6`,
-        [titulo, descricao, categoria, local, tagsStr, id]
+         WHERE id=$7`,
+        [titulo, descricao, categoria, secao || 'recentes', local, tagsStr, id]
     );
 }
 

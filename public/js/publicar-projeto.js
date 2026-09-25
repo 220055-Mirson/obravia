@@ -137,6 +137,7 @@ async function publicarProjeto(event) {
     const titulo    = document.getElementById("projetoTitulo")?.value.trim() || '';
     const descricao = document.getElementById("projetoDescricao")?.value.trim() || '';
     const categoria = document.getElementById("projetoCategoria")?.value || 'Outros';
+    const secao     = document.getElementById("projetoSecao")?.value || 'recentes';
     const provincia = document.getElementById("projetoProvincia")?.value.trim() || '';
     const local     = document.getElementById("projetoLocal")?.value?.trim() || '';
     const tagsRaw   = document.getElementById("projetoTags")?.value.trim() || '';
@@ -158,6 +159,7 @@ async function publicarProjeto(event) {
     formData.append('titulo', titulo);
     formData.append('descricao', descricao);
     formData.append('categoria', categoria);
+    formData.append('secao', secao);
     formData.append('local', localFinal);
     formData.append('tags', tagsRaw);
     
@@ -196,7 +198,7 @@ async function publicarProjeto(event) {
             // Limpar form com protecção contra campos inexistentes
             const _clear = id => { const el = document.getElementById(id); if (el) el.value = ''; };
             _clear("projetoTitulo"); _clear("projetoDescricao"); _clear("projetoLocal");
-            _clear("projetoTags"); _clear("projetoProvincia"); _clear("projetoCategoria");
+            _clear("projetoTags"); _clear("projetoProvincia"); _clear("projetoCategoria"); _clear("projetoSecao");
             
             // Limpar imagens
             imagensSelecionadas.forEach(img => URL.revokeObjectURL(img.previewUrl));
@@ -206,8 +208,9 @@ async function publicarProjeto(event) {
             mostrarToast(" Projeto publicado com sucesso!");
             
             // Limpar campos restantes
-            if (document.getElementById("projetoCategoria")) document.getElementById("projetoCategoria").value = "";
+            if (document.getElementById("projetoCategoria")) document.getElementById("projetoCategoria").value = "Residencial";
             if (document.getElementById("projetoProvincia")) document.getElementById("projetoProvincia").value = "";
+            if (document.getElementById("projetoSecao")) document.getElementById("projetoSecao").value = "recentes";
             if (document.getElementById("projetoTags")) document.getElementById("projetoTags").value = "";
             if (document.getElementById("projetoTitulo")) document.getElementById("projetoTitulo").value = "";
             if (document.getElementById("projetoDescricao")) document.getElementById("projetoDescricao").value = "";
@@ -240,6 +243,7 @@ async function abrirModalEditar(id) {
     document.getElementById("editId").value = projeto.id;
     document.getElementById("editTitulo").value = projeto.titulo;
     document.getElementById("editCategoria").value = projeto.categoria;
+    document.getElementById("editSecao").value = projeto.secao || projeto.exibir_em || 'recentes';
 
     const provSelect = document.getElementById("editProvincia");
     if (provSelect) {
@@ -275,6 +279,7 @@ async function salvarEdicao(event) {
     const dados = {
         titulo: document.getElementById("editTitulo").value,
         categoria: document.getElementById("editCategoria").value,
+        secao: document.getElementById("editSecao").value,
         local: provinciaEdit || localEdit || '',
         descricao: document.getElementById("editDescricao").value,
         tags: document.getElementById("editTags").value

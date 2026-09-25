@@ -350,13 +350,14 @@ app.get('/api/meus-projetos', autenticar, async (req, res) => {
 
 app.post('/api/projetos', autenticar, upload.array('fotos', 10), async (req, res) => {
     try {
-        const { titulo, descricao, categoria, local, tags } = req.body;
+        const { titulo, descricao, categoria, secao, local, tags } = req.body;
         if (!titulo || !descricao) return erro(res, 400, 'Título e descrição são obrigatórios');
 
         const fotosPaths = (req.files || []).map(f => `/uploads/${path.basename(f.path)}`);
         const id = await db.criarProjeto({
             titulo, descricao,
             categoria: categoria || 'Outros',
+            secao: secao || 'recentes',
             local: local || '', tags: tags || '',
             fotos: fotosPaths,
             foto_capa: fotosPaths[0] || '',
