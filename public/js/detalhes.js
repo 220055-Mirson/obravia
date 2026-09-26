@@ -79,6 +79,23 @@ function getProjetoId() {
   return id;
 }
 
+function normalizarListaFotos(fotos, fotoCapa = '') {
+  const lista = [];
+  const entradas = Array.isArray(fotos) ? fotos : (fotos ? [fotos] : []);
+
+  if (fotoCapa) entradas.unshift(fotoCapa);
+
+  entradas.forEach((foto) => {
+    if (!foto || typeof foto !== 'string') return;
+    const valor = tratarCaminhoImagem(foto);
+    if (valor && !lista.includes(valor)) {
+      lista.push(valor);
+    }
+  });
+
+  return lista;
+}
+
 //CARREGAR PROJETO DO BACKEND
 async function carregarProjeto() {
   const projetoId = getProjetoId();
@@ -98,6 +115,7 @@ async function carregarProjeto() {
     if (response.ok) {
       const projeto = await response.json();
       console.log('Projeto carregado do backend:', projeto);
+      const galeria = normalizarListaFotos(projeto.fotos || [], projeto.foto_capa || '');
       
       // Converter formato do backend para o formato esperado
       projetoAtual = {
@@ -111,8 +129,8 @@ async function carregarProjeto() {
           local: projeto.local || 'Moçambique',
           avatar: (projeto.engenheiro_nome || projeto.engenheiro || 'EN').substring(0, 2).toUpperCase()
         },
-        imagemPrincipal: tratarCaminhoImagem(projeto.foto_capa || (projeto.fotos && projeto.fotos[0])),
-        galeria: projeto.fotos ? (Array.isArray(projeto.fotos) ? projeto.fotos : [projeto.fotos]) : [],
+        imagemPrincipal: galeria[0] || tratarCaminhoImagem(projeto.foto_capa || (projeto.fotos && projeto.fotos[0])),
+        galeria,
         comentarios: projeto.comentarios || []
       };
       exibirDetalhes();
@@ -159,21 +177,20 @@ function exibirDetalhes() {
   if (!projetoAtual) return;
   
   console.log('Exibindo projeto:', projetoAtual.titulo);
+  const fotosProjeto = normalizarListaFotos(projetoAtual.galeria || [], projetoAtual.imagemPrincipal || projetoAtual.foto_capa || '');
+  const imagemPrincipal = fotosProjeto[0] || tratarCaminhoImagem(projetoAtual.imagemPrincipal || projetoAtual.foto_capa);
   
   // Montar galeria de fotos
   let galeriaHtml = '';
-  if (projetoAtual.galeria && projetoAtual.galeria.length > 0) {
-    const galeriaFiltrada = projetoAtual.galeria.filter(img => img && img !== projetoAtual.imagemPrincipal);
-    if (galeriaFiltrada.length > 0) {
-      galeriaHtml = `
-        <div class="galeria-section">
-          <h4>📸 Galeria de Fotos</h4>
-          <div class="galeria-grid">
-            ${galeriaFiltrada.map(img => `<img src="${tratarCaminhoImagem(img)}" alt="Foto do projeto" class="galeria-img" onclick="abrirImagemGrande('${tratarCaminhoImagem(img)}')">`).join('')}
-          </div>
+  if (fotosProjeto.length > 0) {
+    galeriaHtml = `
+      <div class="galeria-section">
+        <h4>📸 Galeria de Fotos</h4>
+        <div class="galeria-grid">
+          ${fotosProjeto.map((img, index) => `<img src="${img}" alt="Foto do projeto" class="galeria-img" onclick="abrirGaleria(${index})">`).join('')}
         </div>
-      `;
-    }
+      </div>
+    `;
   }
   
   // Montar comentários
@@ -202,11 +219,10 @@ function exibirDetalhes() {
   
   const tags = projetoAtual.tags || [];
   const engenheiro = projetoAtual.engenheiro || { nome: 'Engenheiro', local: 'Moçambique', avatar: 'EN' };
-  const imagemPrincipal = tratarCaminhoImagem(projetoAtual.imagemPrincipal);
   
   const html = `
     <div class="projeto-detalhes">
-      <img class="projeto-imagem-principal" src="${imagemPrincipal}" alt="${escapeHtml(projetoAtual.titulo)}" onerror="this.src='https://placehold.co/800x400/D85A30/FFFFFF?text=Imagem+não+disponível'">
+      <img class="projeto-imagem-principal" src="${imagemPrincipal}" alt="${escapeHtml(projetoAtual.titulo)}" onclick="abrirGaleria(0)" onerror="this.src='https://placehold.co/800x400/D85A30/FFFFFF?text=Imagem+não+disponível'">
       <div class="projeto-info">
         <span class="projeto-categoria">${escapeHtml(projetoAtual.categoria || 'Projeto')}</span>
         <h1 class="projeto-titulo">${escapeHtml(projetoAtual.titulo)}</h1>
@@ -264,8 +280,72 @@ function voltarPagina() {
   window.location.href = 'index.html';
 }
 
+function atualizarContadorLightbox(indexAtual, total) {
+  const counter = document.getElementById('lightboxCounter');
+  if (!counter) return;
+  counter.textContent = `${indexAtual + 1} / ${total}`;
+}
+
+function abrirGaleria(indiceImagem = 0) {
+  if (!projetoAtual) return;
+
+  const imagens = normalizarListaFotos(projetoAtual.galeria || [], projetoAtual.imagemPrincipal || projetoAtual.foto_capa || '');
+  if (!imagens.length) return;
+
+  const overlay = document.getElementById('lightboxOverlay');
+  const track = document.getElementById('lightboxTrack');
+  const prev = document.getElementById('lightboxPrev');
+  const next = document.getElementById('lightboxNext');
+
+  if (!overlay || !track || !prev || !next) return;
+
+  track.innerHTML = imagens.map((img, index) => `
+    <div class="lightbox-slide ${index === indiceImagem ? 'ativo' : ''}">
+      <img src="${img}" alt="Foto ${index + 1} do projeto" onerror="this.src='https://placehold.co/1200x800/D85A30/FFFFFF?text=Imagem+não+disponível'">
+    </div>
+  `).join('');
+
+  let indexAtual = Math.min(Math.max(indiceImagem, 0), imagens.length - 1);
+  track.dataset.indice = String(indexAtual);
+
+  const atualizarPosicao = () => {
+    const slides = [...track.children];
+    const slideAtivo = slides[indexAtual] || slides[0];
+    if (slideAtivo) {
+      track.dataset.indice = String(indexAtual);
+      track.style.transform = `translateX(-${slideAtivo.offsetLeft}px)`;
+      atualizarContadorLightbox(indexAtual, imagens.length);
+    }
+  };
+
+  prev.onclick = () => {
+    indexAtual = (indexAtual - 1 + imagens.length) % imagens.length;
+    atualizarPosicao();
+  };
+
+  next.onclick = () => {
+    indexAtual = (indexAtual + 1) % imagens.length;
+    atualizarPosicao();
+  };
+
+  overlay.classList.add('aberto');
+  overlay.setAttribute('aria-hidden', 'false');
+  atualizarPosicao();
+}
+
+function fecharGaleria() {
+  const overlay = document.getElementById('lightboxOverlay');
+  if (overlay) {
+    overlay.classList.remove('aberto');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+}
+
 function abrirImagemGrande(imgSrc) {
-  window.open(imgSrc, '_blank');
+  if (!projetoAtual) return;
+  const imagens = normalizarListaFotos(projetoAtual.galeria || [], projetoAtual.imagemPrincipal || projetoAtual.foto_capa || '');
+  const index = imagens.findIndex(img => img === tratarCaminhoImagem(imgSrc));
+  abrirGaleria(index >= 0 ? index : 0);
 }
 
 async function adicionarComentario(projetoId) {
@@ -370,7 +450,80 @@ function logout() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM carregado - Inicializando detalhes.js');
   
-  // Configurar fechamento de modais
+  const lightboxOverlay = document.getElementById('lightboxOverlay');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const lightboxTrack = document.getElementById('lightboxTrack');
+  if (lightboxOverlay) {
+    lightboxOverlay.addEventListener('click', (event) => {
+      if (event.target === lightboxOverlay) {
+        fecharGaleria();
+      }
+    });
+  }
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', fecharGaleria);
+  }
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  const iniciarSwipe = (event) => {
+    const touch = event.touches ? event.touches[0] : event;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  };
+
+  const finalizarSwipe = (event) => {
+    if (!lightboxOverlay?.classList.contains('aberto')) return;
+    const touch = event.changedTouches ? event.changedTouches[0] : event;
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+
+    if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      const imagens = normalizarListaFotos(projetoAtual?.galeria || [], projetoAtual?.imagemPrincipal || projetoAtual?.foto_capa || '');
+      if (imagens.length > 0) {
+        const atual = Number(lightboxTrack?.dataset?.indice || 0);
+        if (deltaX < 0) {
+          abrirGaleria((atual + 1) % imagens.length);
+        } else {
+          abrirGaleria((atual - 1 + imagens.length) % imagens.length);
+        }
+      }
+    }
+  };
+
+  if (lightboxTrack) {
+    lightboxTrack.addEventListener('touchstart', iniciarSwipe, { passive: true });
+    lightboxTrack.addEventListener('touchend', finalizarSwipe, { passive: true });
+    lightboxTrack.addEventListener('pointerdown', iniciarSwipe);
+    lightboxTrack.addEventListener('pointerup', finalizarSwipe);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    const overlayAberto = document.getElementById('lightboxOverlay')?.classList.contains('aberto');
+    if (!overlayAberto) return;
+
+    if (event.key === 'Escape') {
+      fecharGaleria();
+    }
+
+    if (event.key === 'ArrowRight') {
+      const imagens = normalizarListaFotos(projetoAtual?.galeria || [], projetoAtual?.imagemPrincipal || projetoAtual?.foto_capa || '');
+      if (imagens.length > 0) {
+        const atual = Number(document.getElementById('lightboxTrack')?.dataset?.indice || 0);
+        abrirGaleria((atual + 1) % imagens.length);
+      }
+    }
+
+    if (event.key === 'ArrowLeft') {
+      const imagens = normalizarListaFotos(projetoAtual?.galeria || [], projetoAtual?.imagemPrincipal || projetoAtual?.foto_capa || '');
+      if (imagens.length > 0) {
+        const atual = Number(document.getElementById('lightboxTrack')?.dataset?.indice || 0);
+        abrirGaleria((atual - 1 + imagens.length) % imagens.length);
+      }
+    }
+  });
+
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function(e) {
       if (e.target === this) this.classList.remove('aberto');

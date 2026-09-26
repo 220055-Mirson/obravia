@@ -56,7 +56,7 @@ function renderProjectosFiltrados() {
     const uploadsUrl = typeof UPLOADS_URL !== 'undefined' ? UPLOADS_URL : '';
     const imgSrc = fotoCapa ? (fotoCapa.startsWith('http') ? fotoCapa : `${uploadsUrl}/${fotoCapa.replace(/^\//, '')}`) : '';
     return `<div class="card" onclick="window.location.href='detalhes.html?id=${projeto.id}'">
-      <div class="card-img" style="background:#F1EFE8;min-height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+      <div class="card-img card-click-area" style="background:#F1EFE8;min-height:160px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="event.stopPropagation(); abrirDetalhesProjeto(${projeto.id})">
         ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(projeto.titulo)}" style="width:100%;height:160px;object-fit:cover" onerror="this.style.display='none'">` : '<span style="font-size:2rem"></span>'}
       </div>
       <div class="card-content">
@@ -197,7 +197,7 @@ function exibirProjetos() {
     
     return `
       <div class="card">
-        <img class="card-img" src="${projeto.foto_capa || (projeto.fotos && projeto.fotos[0]) || 'https://placehold.co/600x400/D4B896/FFFFFF?text=Sem+Imagem'}" alt="${escapeHtml(projeto.titulo)}">
+        <img class="card-img card-click-area" src="${projeto.foto_capa || (projeto.fotos && projeto.fotos[0]) || 'https://placehold.co/600x400/D4B896/FFFFFF?text=Sem+Imagem'}" alt="${escapeHtml(projeto.titulo)}" onclick="event.stopPropagation(); abrirDetalhesProjeto(${projeto.id})" style="cursor:pointer;">
         <div class="card-body">
           <div class="card-engenheiro">
             <div class="avatar">${iniciais}</div>
@@ -222,8 +222,12 @@ function exibirProjetos() {
 }
 
 // ── VER DETALHES DO PROJETO ──
-function verDetalhes(projetoId) {
+function abrirDetalhesProjeto(projetoId) {
   window.location.href = `detalhes.html?id=${projetoId}`;
+}
+
+function verDetalhes(projetoId) {
+  abrirDetalhesProjeto(projetoId);
 }
 
 // ── CARREGAR PEDIDOS (dados estáticos para demonstração) ──
@@ -297,7 +301,7 @@ async function carregarPedidos() {
     const img = projeto.foto_capa || (projeto.fotos && projeto.fotos[0]) || 'https://placehold.co/600x400/D4B896/FFFFFF?text=Sem+Imagem';
     return `
       <div class="card">
-        <img class="card-img" src="${img}" alt="${escapeHtml(projeto.titulo)}">
+        <img class="card-img card-click-area" src="${img}" alt="${escapeHtml(projeto.titulo)}" onclick="event.stopPropagation(); abrirDetalhesProjeto(${projeto.id})" style="cursor:pointer;">
         <div class="card-body">
           <div class="card-engenheiro">
             <div class="avatar">${iniciais}</div>
