@@ -79,6 +79,22 @@ function getProjetoId() {
   return id;
 }
 
+function obterProjetoEmCache(id) {
+  try {
+    const raw = localStorage.getItem('projetoSelecionado');
+    if (!raw) return null;
+
+    const projeto = JSON.parse(raw);
+    if (String(projeto.id) === String(id)) {
+      return projeto;
+    }
+  } catch (error) {
+    console.warn('Não foi possível ler o projeto em cache:', error);
+  }
+
+  return null;
+}
+
 function normalizarListaFotos(fotos, fotoCapa = '') {
   const lista = [];
   const entradas = Array.isArray(fotos) ? fotos : (fotos ? [fotos] : []);
@@ -102,6 +118,27 @@ async function carregarProjeto() {
   
   if (!projetoId) {
     mostrarErro('ID do projeto não informado');
+    return;
+  }
+
+  const projetoEmCache = obterProjetoEmCache(projetoId);
+  if (projetoEmCache) {
+    projetoAtual = {
+      id: projetoEmCache.id,
+      titulo: projetoEmCache.titulo,
+      descricao: projetoEmCache.descricao,
+      categoria: projetoEmCache.categoria,
+      tags: projetoEmCache.tags ? (Array.isArray(projetoEmCache.tags) ? projetoEmCache.tags : projetoEmCache.tags.split(',').map(t => t.trim())) : [],
+      engenheiro: {
+        nome: projetoEmCache.engenheiro_nome || projetoEmCache.engenheiro || 'Engenheiro',
+        local: projetoEmCache.local || 'Moçambique',
+        avatar: (projetoEmCache.engenheiro_nome || projetoEmCache.engenheiro || 'EN').substring(0, 2).toUpperCase()
+      },
+      imagemPrincipal: tratarCaminhoImagem(projetoEmCache.foto_capa || (projetoEmCache.fotos && projetoEmCache.fotos[0])),
+      galeria: normalizarListaFotos(projetoEmCache.fotos || [], projetoEmCache.foto_capa || ''),
+      comentarios: projetoEmCache.comentarios || []
+    };
+    exibirDetalhes();
     return;
   }
   
@@ -139,7 +176,7 @@ async function carregarProjeto() {
       usarFallback(projetoId);
     }
   } catch (error) {
-    console.error('Erro ao carregar projeto do backend:', error);
+    console.warn('Backend indisponível; usando fallback local para o projeto.', error);
     usarFallback(projetoId);
   }
 }

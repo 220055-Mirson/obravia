@@ -223,6 +223,10 @@ function exibirProjetos() {
 
 // ── VER DETALHES DO PROJETO ──
 function abrirDetalhesProjeto(projetoId) {
+  const projeto = (todosProjetos || []).find(p => String(p.id) === String(projetoId));
+  if (projeto) {
+    localStorage.setItem('projetoSelecionado', JSON.stringify(projeto));
+  }
   window.location.href = `detalhes.html?id=${projetoId}`;
 }
 
