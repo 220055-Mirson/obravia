@@ -222,7 +222,7 @@ function exibirDetalhes() {
   if (fotosProjeto.length > 0) {
     galeriaHtml = `
       <div class="galeria-section">
-        <h4>📸 Galeria de Fotos</h4>
+        <h4> Galeria de Fotos</h4>
         <div class="galeria-grid">
           ${fotosProjeto.map((img, index) => `<img src="${img}" alt="Foto do projeto" class="galeria-img" onclick="abrirGaleria(${index})">`).join('')}
         </div>

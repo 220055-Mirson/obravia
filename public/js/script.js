@@ -411,7 +411,7 @@ function atualizarNavbar() {
     // Engenheiro: Adicionar Projecto + Ver Pedidos + Chat
     inserirAntesSobre(`
       <li class="item-dinamico"><a href="#" class="btn-add-project" onclick="abrirModalLoginProjetos(); return false;">Adicionar Projecto</a></li>
-      <li class="item-dinamico"><a href="painel-engenheiro.html" class="btn-add-project" style="background:#3B6D11">Ver Pedidos</a></li>
+      <li class="item-dinamico"><a href="painel-engenheiro.html" class="btn-add-project">Ver Pedidos</a></li>
       <li class="item-dinamico">
         <a href="#" class="btn-notificacoes" id="btnNotif" onclick="toggleChat(event)">
            Mensagens <span class="notif-badge" id="notifBadge" style="display:none">0</span>
@@ -428,7 +428,7 @@ function atualizarNavbar() {
         </a>
       </li>
       <li class="item-dinamico">
-        <a href="#" class="btn-notificacoes" id="btnNotif" onclick="toggleChat(event)" style="background:#3B6D11">
+        <a href="#" class="btn-notificacoes" id="btnNotif" onclick="toggleChat(event)">
            Mensagens <span class="notif-badge" id="chatBadge" style="display:none">0</span>
         </a>
       </li>

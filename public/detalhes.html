@@ -16,19 +16,17 @@
         <img src="/img/OBRAVIA.jpeg" alt="Logo OBRAVIA">
       </div>
       <div class="welcome-user" id="bemVindo">Bem-vindo</div>
+      <div class="header-actions">
+        <button class="btn-voltar" onclick="voltarPagina()">
+          ← Voltar
+        </button>
+      </div>
       <ul class="nav-links">
         <li><a href="sobre.html" class="btn-sobre">Sobre</a></li>
         <li><a href="#" class="btn-sair" onclick="logout()">Sair</a></li>
       </ul>
     </div>
   </header>
-
-  <!-- BOTÃO VOLTAR -->
-  <div class="back-button">
-    <button class="btn-voltar" onclick="voltarPagina()">
-      ← Voltar para projetos
-    </button>
-  </div>
 
   <!-- CONTEÚDO DINÂMICO -->
   <div class="detalhes-container" id="detalhesContainer">
@@ -68,7 +66,7 @@
       <p class="modal-titulo" id="modalTitulo">Pedir contacto</p>
       <p class="modal-sub">Envie uma mensagem ao engenheiro. A OBRAVIA encaminha o pedido.</p>
       <label>O seu nome</label>
-      <input type="text" placeholder="Ex: Carlos Nhantumbo" id="clienteNome">
+      <input type="text" id="clienteNome">
       <label>Telefone</label>
       <input type="tel" placeholder="+258" id="clienteTel">
       <label>Tipo de projecto</label>
@@ -91,7 +89,7 @@
 
   <!-- TOAST -->
   <div class="toast" id="toast">
-    <span id="toastMensagem">Pedido enviado com sucesso!</span>
+    <span id="toastMensagem">Pedido enviado! Aguarde resposta.</span>
   </div>
 
   <div class="lightbox-overlay" id="lightboxOverlay" aria-hidden="true">

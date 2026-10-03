@@ -33,7 +33,7 @@ body {
   height: 85px;
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 }
 .logo img { 
   height: 55px; 
@@ -46,7 +46,12 @@ body {
   color: var(--laranja);
   margin-right: auto;
 }
-.nav-links { list-style: none; display: flex; align-items: center; gap: 1.5rem; }
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+.nav-links { list-style: none; display: flex; align-items: center; gap: 1rem; }
 .nav-links a {
   font-size: 14px;
   color: var(--cinza-texto);
@@ -97,25 +102,27 @@ body {
 
 
 /* ── BOTÃO VOLTAR ── */
-.back-button {
-  max-width: 1200px;
-  margin: 1.5rem auto 0;
-  padding: 0 2rem;
-}
 .btn-voltar {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: transparent;
-  border: none;
-  color: var(--laranja);
-  font-size: 14px;
-  font-weight: 500;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: var(--branco);
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
-.btn-voltar:hover { color: var(--laranja-escuro); }
+.btn-voltar:hover {
+  background: rgba(216, 90, 48, 0.12);
+  border-color: rgba(216, 90, 48, 0.6);
+  color: var(--branco);
+}
 
 /* ── LOADING ── */
 .loading-container {
